@@ -17,43 +17,51 @@ for(index in tablero){
     console.log(`${tablero[index]}  ${letra[indexLetras]}`);
     indexLetras++;
 }
+//--------------------------------------------------------------------------------------//
 
-let posicionFicha = prompt("");
-
+let posicionFicha;
 let fila;
 let columna;
 let convertir = (convertir) =>{
     fila = letra.indexOf(convertir[0].toUpperCase());
     columna = parseInt(convertir[1]) - 1;   
 }
-convertir(posicionFicha);
-console.log(fila, columna);
 
 let fichas = ["p", "t", "c", "a", "d", "r"];
-let turno = "Negro";
+let turno = "Blanco";
+let contPrueba = 0;
 
+while(contPrueba < 5){
+    let fichaEncontrada = false;
+    posicionFicha = prompt("");
+    convertir(posicionFicha);
+    console.log(posicionFicha, fila, columna);
 
-if(turno == "Blanco"){
-    for(let i = 0; i < fichas.length; i++){
-        if(tablero[fila][columna] == fichas[i]){
-            turno = "Negro";
-            i = fichas.length;
-        }else{
-            turno = "fichaNE";
+    if(turno == "Blanco"){
+        for(let i = 0; i < fichas.length; i++){
+            if(tablero[fila][columna] == fichas[i]){
+                turno = "Negro";
+                i = fichas.length;
+            }
         }
+    }else if(turno == "Negro"){
+        for(let i = 0; i < fichas.length; i++){
+            if(tablero[fila][columna] == fichas[i].toUpperCase()){
+                turno = "Blanco";
+                i = fichas.length;
+            }
+        }    
     }
-}else if(turno == "Negro"){
-    for(let i = 0; i < fichas.length; i++){
-        if(tablero[fila][columna] == fichas[i].toUpperCase()){
-            turno = "Blanco";
-            i = fichas.length;
-        }else{
-            turno = "fichaNE";
-        }
+
+    if(fichaEncontrada){
+        contPrueba++;
+    }else{
+
     }    
 }
 
-console.log(turno);
+
+
 // let posicionEspacio = prompt("");
 // convertir(posicionEspacio);
 // console.log(fila, columna);
