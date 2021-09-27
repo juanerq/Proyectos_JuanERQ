@@ -7,12 +7,37 @@ body{
     overflow: hidden;
 }
 
-h1{
+#titulo{
     color: rgb(20, 0, 26);
     margin: 0;
     text-align: center;
     font-size: 25px;
 }
+
+.esconder{
+  display: none !important;
+}
+
+#bannerRotarTelefono{
+  display: flex;
+  justify-content: space-between;
+  background-color: rgb(255, 80, 80);
+  color: white;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+#botonCerrarBanner{
+  border: 1px solid white;
+  border-radius: 5px;
+  background-color: rgb(255, 80, 80);
+  color: white;
+  padding: 6px;
+}
+#botonCerrarBanner:hover{
+  background-color: rgb(202, 30, 30);
+  cursor: pointer;
+}
+
 #puntos{
     color: rgb(20, 0, 26);
     margin-left: 10%;

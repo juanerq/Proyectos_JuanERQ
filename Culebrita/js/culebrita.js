@@ -36,11 +36,13 @@ const FPS = 1000 / 15;
 let CANVAS = document.getElementById("juegoCanvas");
 let CTX = CANVAS.getContext("2d");
 
+let CONTENEDOR_NINTENDO = document.getElementById("contenedorNintendo");
 let PUNTOS_TEXTO = document.getElementById("puntos");
+let BANNER_ROTAR_TELEFONO = document.getElementById("bannerRotarTelefono");
+let TITULO = document.getElementById("titulo");
+let BOTON_CERRAR_BANNER = document.getElementById("botonCerrarBanner");
 
 let SONIDO_COMIDA = new Audio("ganaste_un_punto.wav");
-
-let CONTENEDOR_NINTENDO = document.getElementById("contenedorNintendo");
 
 //--------------------------[ Estado del juego (direcciones) ]-------------------------//
 
@@ -95,7 +97,7 @@ function dibujarParedes(context){
 }
 
 function dibujarTexto(context, texto, x, y){
-    context.font = "40px Cairo, sans-serif";
+    context.font = "38px Cairo, sans-serif";
     context.textAlign = "center";
     context.fillStyle = "black";
     context.fillText(texto, x, y);
@@ -195,6 +197,18 @@ function incrementarPuntaje(){
     SONIDO_COMIDA.play();
 }
 
+//----------------------------------[ Responsive ]------------------------------------//
+
+window.addEventListener("orientationchange", function(){
+    TITULO.classList.add("esconder");
+    BANNER_ROTAR_TELEFONO.classList.remove("esconder");
+});
+
+BOTON_CERRAR_BANNER.addEventListener("click", function(){
+    TITULO.classList.remove("esconder");
+    BANNER_ROTAR_TELEFONO.classList.add("esconder");
+});
+
 //-------------------------------[ Ciclo del juego ]---------------------------------//
 
 
@@ -268,10 +282,22 @@ Este continuará llamando a la función hasta que se llame a clearInterval() o s
 
 dibujarParedes(CTX);
 dibujarTexto(CTX, "¡Click para empezar!", 300, 260);
-dibujarTexto(CTX, "Muévete con ↑ ↓ → ←", 300, 310);
+dibujarTexto(CTX, "Desktop: Muévete con ↑ ↓ → ←", 300, 310);
+dibujarTexto(CTX, "Móbil: Tap para girar la culebra", 300, 360);
 
 CANVAS.addEventListener('click', function(){
     if(ciclo === undefined){
         empezarJuego();
+        return;
     }
+
+    if(direccionActual == DIRECCIONES.ABAJO){
+        nuevaDireccion = DIRECCIONES.IZQUIERDA;
+    }else if(direccionActual == DIRECCIONES.IZQUIERDA){
+        nuevaDireccion = DIRECCIONES.ARRIBA;
+    }else if(direccionActual == DIRECCIONES.ARRIBA){
+        nuevaDireccion = DIRECCIONES.DERECHA;
+    }else if(direccionActual == DIRECCIONES.DERECHA){
+        nuevaDireccion = DIRECCIONES.ABAJO;
+    }   
 })
