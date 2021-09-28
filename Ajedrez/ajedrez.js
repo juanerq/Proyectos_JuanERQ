@@ -105,7 +105,7 @@ function cuadradosTablero(ix,iy,fx,fy, color){
 }
            
 
-//--------> ORDENAR FICHAS EN PANTALLA <--------//
+//--------> ORDENAR PIEZAS EN PANTALLA <--------//
 
 let piezas = document.getElementById('piezas')
 
@@ -142,47 +142,94 @@ for(let j = 0; j < numFilas; j++){
 
 // Mover fichas
 let turno = 'blanco'
-let piezaEscogida;
+let piezaEscogida = {
+    fila: 0,
+    columna: '',
+    pieza: ''
+};
+let campoEscogido = {
+    fila: 0,
+    columna: '',
+    campo: ''
+};
 
-function seleccionarPieza(){
+function hacerMovimiento(){
     
     let moverFicha = prompt('Haga un movimiento');
     
     let posColumna = LETRAS.indexOf(moverFicha[0].toUpperCase())
     console.log(posColumna );
     let posFila = moverFicha.slice(1,moverFicha.length) - 1;
-    if((posColumna == -1 || posColumna >= numColumnas)  || (posFila < 0 || posFila >= numFilas)){
+
+    if((posColumna == -1 || posColumna >= numColumnas)  || (posFila < 0 || posFila >= numFilas || isNaN(posFila))){
         console.log('Seleccione un campo dentro del tablero');
-        return seleccionarPieza();
+        return hacerMovimiento();
     }
 
-    piezaEscogida = TABLERO[posFila][posColumna];
-    return validarPos(piezaEscogida);
+    if(piezaEscogida.pieza == ''){
+        piezaEscogida.fila = posFila;
+        piezaEscogida.columna = posColumna
+        return validarPieza(piezaEscogida);
+    }
+    if(campoEscogido.campo == ''){
+        campoEscogido.fila = posFila;
+        campoEscogido.columna = posColumna
+        return validarCampo(campoEscogido);
+    }
 
+}
+
+
+
+function validarPieza(pieza){
+    let piezaEscontrada;
+    pieza = TABLERO[pieza.fila][pieza.columna];
+
+    if(turno == 'blanco'){
+        piezaEscontrada =  PIEZAS_BLANCAS.indexOf(pieza);
+    }else if(turno == 'negro'){
+        piezaEscontrada =  PIEZAS_NEGRAS.indexOf(pieza);
+    }  
+
+    //No encontro la pieza?
+    if(piezaEscontrada == -1){
+        console.log(`Selecciona una pieza de color ${turno}`)
+        return hacerMovimiento();
+    }
+    piezaEscogida.pieza = pieza;
+    return hacerMovimiento();
+}
+
+
+function validarCampo(campo){
+    campo = TABLERO[campo.fila][campo.columna];
+
+    if(campo != ' '){
+        console.log('Selecciona un campo vacio');
+        return hacerMovimiento();
+    }
+
+    campoEscogido.campo = campo;
+    // Función para cambiar posicion de pieza
+    return moverPieza(piezaEscogida, campoEscogido);
+}
+
+
+function moverPieza(pieza, campo){
+    TABLERO[campo.fila][campo.columna] = pieza.pieza;
+    TABLERO[pieza.fila][pieza.columna] = campo.campo;
+
+    TABLERO_PIEZAS[campo.fila][campo.columna].innerHTML = pieza.pieza; 
+    TABLERO_PIEZAS[pieza.fila][pieza.columna].innerHTML = campo.campo; 
+
+    piezaEscogida.pieza = '';
+    campoEscogido.campo = '';
+    
     //Cambiar de turno
     if(turno == 'blanco'){
         turno = 'negro';
     }else if(turno == 'negro'){
         turno = 'blanco';
     }
-}
-
-
-
-function validarPos(piezaEscogida){
-    let piezaEscontrada;
-
-    if(turno == 'blanco'){
-        piezaEscontrada =  PIEZAS_BLANCAS.indexOf(piezaEscogida);
-    }else if(turno == 'negro'){
-        piezaEscontrada =  PIEZAS_NEGRAS.indexOf(piezaEscogida);
-    }  
-
-    //No encontro la pieza?
-    if(piezaEscontrada == -1){
-        console.log(`Selecciona una pieza de color ${turno}`)
-        return seleccionarPieza();
-    }
-
-    return piezaEscogida; 
+    
 }
