@@ -13,9 +13,11 @@ p{
     line-height: 55px;
     height: 50px;
     width: 50px;
-    font-weight: bold;
     color: blue;
     cursor: pointer;
+}
+p:hover{
+    background-color: aqua;
 }
 #ficha2{
     left: 100px;

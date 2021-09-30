@@ -129,16 +129,13 @@ for(let j = 0; j < numFilas; j++){
         
     
         TABLERO_PIEZAS[j][i].addEventListener('click', ()=>{
-            alert(TABLERO_PIEZAS[j][i].style.left+''+ TABLERO_PIEZAS[j][i].style.top+''+TABLERO_PIEZAS[j][i].innerHTML)
+            hacerMovimiento(j,i,TABLERO_PIEZAS[j][i]);
         })
     }
     
 }
 
 //--------> TURNOS <--------//
-
-
-
 
 // Mover fichas
 let turno = 'blanco'
@@ -153,35 +150,37 @@ let campoEscogido = {
     campo: ''
 };
 
-function hacerMovimiento(){
+function hacerMovimiento(posFila, posColumna, etiqueta){
     
-    let moverFicha = prompt('Haga un movimiento');
-    
-    let posColumna = LETRAS.indexOf(moverFicha[0].toUpperCase())
-    console.log(posColumna );
-    let posFila = moverFicha.slice(1,moverFicha.length) - 1;
 
-    if((posColumna == -1 || posColumna >= numColumnas)  || (posFila < 0 || posFila >= numFilas || isNaN(posFila))){
-        console.log('Seleccione un campo dentro del tablero');
-        return hacerMovimiento();
-    }
+    // console.log(posFila,'/',posColumna);
+    // let moverFicha = prompt('Haga un movimiento');
+    
+    // let posColumna = LETRAS.indexOf(moverFicha[0].toUpperCase())
+    // console.log(posColumna );
+    // let posFila = moverFicha.slice(1,moverFicha.length) - 1;
+
+    // if((posColumna == -1 || posColumna >= numColumnas)  || (posFila < 0 || posFila >= numFilas || isNaN(posFila))){
+    //     console.log('Seleccione un campo dentro del tablero');
+    //     return hacerMovimiento();
+    // }
 
     if(piezaEscogida.pieza == ''){
         piezaEscogida.fila = posFila;
         piezaEscogida.columna = posColumna
-        return validarPieza(piezaEscogida);
+        return validarPieza(piezaEscogida,etiqueta);
     }
     if(campoEscogido.campo == ''){
         campoEscogido.fila = posFila;
         campoEscogido.columna = posColumna
-        return validarCampo(campoEscogido);
+        return validarCampo(campoEscogido,etiqueta);
     }
 
 }
 
 
 
-function validarPieza(pieza){
+function validarPieza(pieza,etiqueta){
     let piezaEscontrada;
     pieza = TABLERO[pieza.fila][pieza.columna];
 
@@ -193,23 +192,39 @@ function validarPieza(pieza){
 
     //No encontro la pieza?
     if(piezaEscontrada == -1){
-        console.log(`Selecciona una pieza de color ${turno}`)
-        return hacerMovimiento();
+        TABLERO_PIEZAS[piezaEscogida.fila][piezaEscogida.columna].style.backgroundColor = 'red';
+        setTimeout(() => {
+            TABLERO_PIEZAS[piezaEscogida.fila][piezaEscogida.columna].style.backgroundColor = '';
+        }, 500);
+        return console.log(`Selecciona una pieza de color ${turno}`)
     }
     piezaEscogida.pieza = pieza;
-    return hacerMovimiento();
+    etiqueta.style.backgroundColor = 'aqua';
+    return alert(`piaza seleccionada ${pieza}`)
 }
 
 
-function validarCampo(campo){
+function validarCampo(campo,etiqueta){
+
+    if(campo.fila == piezaEscogida.fila && campo.columna == piezaEscogida.columna){
+        etiqueta.style.backgroundColor = '';
+        alert(`piaza deseleccionada ${TABLERO[campo.fila][campo.columna]}`)
+        return piezaEscogida.pieza = '';
+    }
+
     campo = TABLERO[campo.fila][campo.columna];
 
     if(campo != ' '){
-        console.log('Selecciona un campo vacio');
-        return hacerMovimiento();
+        TABLERO_PIEZAS[campoEscogido.fila][campoEscogido.columna].style.backgroundColor = 'red';
+        setTimeout(() => {
+            TABLERO_PIEZAS[campoEscogido.fila][campoEscogido.columna].style.backgroundColor = '';
+        }, 500);
+        
+        return console.log('Selecciona un campo vacio');
     }
 
     campoEscogido.campo = campo;
+    TABLERO_PIEZAS[piezaEscogida.fila][piezaEscogida.columna].style.backgroundColor = '';
     // Función para cambiar posicion de pieza
     return moverPieza(piezaEscogida, campoEscogido);
 }
@@ -224,7 +239,8 @@ function moverPieza(pieza, campo){
 
     piezaEscogida.pieza = '';
     campoEscogido.campo = '';
-    
+
+
     //Cambiar de turno
     if(turno == 'blanco'){
         turno = 'negro';
