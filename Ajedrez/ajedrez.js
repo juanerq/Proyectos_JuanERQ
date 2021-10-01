@@ -222,7 +222,6 @@ function validarCampo(campo,etiqueta){
     }
 
     let resultado = validarMovimientoPieza(piezaEscogida.pieza);
-    console.log(resultado);
     if(resultado == false){
         errorColorRojo(campoEscogido,piezasYcampos);
         return console.log(`El movimiento no es valido para esta pieza ${piezaEscogida.pieza}`);
@@ -258,6 +257,8 @@ function moverPieza(pieza, campo){
     TABLERO_PIEZAS[campo.fila][campo.columna].innerHTML = pieza.pieza; 
     TABLERO_PIEZAS[pieza.fila][pieza.columna].innerHTML = campo.campo; 
 
+    piezaEscogida.fila = 0;
+    campoEscogido.columna = 0;
     piezaEscogida.pieza = '';
     campoEscogido.campo = '';
 
@@ -327,7 +328,7 @@ const logicaPiezas = {
         });
         if(valido){
             piezasYcampos.forEach(element => {
-                element.style.backgroundColor = '';    
+                element.style.backgroundColor = '';  
             })
             return valido
         }
@@ -337,7 +338,6 @@ const logicaPiezas = {
 
     peon: (filaSelec, columnaSelec, posPeon) => {
         if(posPeon.fila == 1 || posPeon.fila == TABLERO.length - 2){
-            console.log(posPeon.fila);
             if(posPeon.pieza == '♙' && filaSelec == (posPeon.fila - 2) && columnaSelec == posPeon.columna) return true;
             if(posPeon.pieza == '♟' && filaSelec == (posPeon.fila + 2) && columnaSelec == posPeon.columna) return true;
         }
