@@ -14,7 +14,7 @@ let listLetras = [];
 //--------> VALIDACIONES [CREACIÓN DE TABLERO] <--------//
 
 while(numColumnas < 8 || numColumnas%2 != 0 ){
-    numColumnas = parseInt(prompt('[ COLUMNAS ]\nDame la cantidad de COLUMNAS del TABLERO.\nEl numero minimo es 8  y debe ser par.'));
+    numColumnas = parseInt(prompt('[ COLUMNAS ]\nDame la cantidad de COLUMNAS del TABLERO.\nEl numero minimo es 8 y debe ser par.'));
 }
 while(numFilas < 4 || numFilas%2 != 0){
     numFilas = parseInt(prompt('[ FILAS ]\nDame la cantidad de FILAS del TABLERO.\nEl numero minimo es 4 y debe ser par.'));
@@ -179,8 +179,6 @@ function hacerMovimiento(posFila, posColumna, etiqueta){
 }
 
 
-
-
 function validarPieza(pieza,etiqueta){
     let piezaEscontrada;
     pieza = TABLERO[pieza.fila][pieza.columna];
@@ -198,49 +196,45 @@ function validarPieza(pieza,etiqueta){
     }
     piezaEscogida.pieza = pieza;
     etiqueta.style.backgroundColor = 'aqua';
+
+    validarMovimientoPieza(pieza);
+
     return console.log(`pieza seleccionada ${pieza}`)
 }
 
 
 function validarCampo(campo,etiqueta){
     //si da click a la misma pieza una vez mas se deselecciona 
+    let campoSeleccionado = TABLERO[campo.fila][campo.columna];
+
     if(campo.fila == piezaEscogida.fila && campo.columna == piezaEscogida.columna){
-        etiqueta.style.backgroundColor = '';
-        console.log(`piza deseleccionada ${TABLERO[campo.fila][campo.columna]}`)
+        piezasYcampos.forEach(element => {
+            element.style.backgroundColor = '';    
+        })
+        console.log(`piza deseleccionada ${campoSeleccionado}`)
         return piezaEscogida.pieza = '';
     }
 
-    if(TABLERO[campo.fila][campo.columna] != ' '){
+
+    if(campoSeleccionado != ' '){
         errorColorRojo(campoEscogido,piezasYcampos);
         return console.log('Selecciona un campo vacio');
     }
 
-    if(piezaEscogida.pieza == '♞' || piezaEscogida.pieza == '♘'){
-        console.log(campo.fila, '/' ,campo.columna);
-        let resultado = moverCaballo(campo.fila,campo.columna,piezaEscogida);
-        console.log(resultado);
+    let resultado = validarMovimientoPieza(piezaEscogida.pieza);
+    console.log(resultado);
+    if(resultado == false){
+        errorColorRojo(campoEscogido,piezasYcampos);
+        return console.log(`El movimiento no es valido para esta pieza ${piezaEscogida.pieza}`);
+
     }
     
-    campoEscogido.campo = TABLERO[campo.fila][campo.columna];
+    campoEscogido.campo = campoSeleccionado;
     TABLERO_PIEZAS[piezaEscogida.fila][piezaEscogida.columna].style.backgroundColor = '';
     // Función para cambiar posicion de pieza
     return moverPieza(piezaEscogida, campoEscogido);
 }
 
-
-
-function errorColorRojo(objetoPiezaCampo,clasePiezas){
-    TABLERO_PIEZAS[objetoPiezaCampo.fila][objetoPiezaCampo.columna].style.backgroundColor = 'red';
-    setTimeout(() => {
-        for(const element of clasePiezas){
-            if(element.style.backgroundColor != 'aqua'){
-                element.style.backgroundColor = '';                
-            }
-        }
-                
-        
-    }, 500);
-}
 
 
 function moverCaballo(filaSelec, columnaSelec, posCaballo){
@@ -278,3 +272,93 @@ function moverPieza(pieza, campo){
 }
 
 
+function validarMovimientoPieza(pieza){
+    switch (pieza) {
+        case '♟': case '♙': return logicaPiezas.peon(campoEscogido.fila, campoEscogido.columna, piezaEscogida);
+        case '♜': case '♖': break;
+        case '♞': case '♘': return logicaPiezas.caballo(campoEscogido.fila,campoEscogido.columna,piezaEscogida);
+        case '♝': case '♗': break;
+        case '♛': case '♕': break;
+        case '♚': case '♔': break;
+        
+        default: break;
+    }
+}
+
+
+const logicaPiezas = {
+    caballo: (filaSelec, columnaSelec, posCaballo) => {
+        // if(filaSelec == (posCaballo.fila - 2) || filaSelec == (posCaballo.fila + 2) || 
+        // columnaSelec == (posCaballo.columna - 2) || columnaSelec == (posCaballo.columna + 2)){
+
+        //     if(columnaSelec == (posCaballo.columna - 1) || columnaSelec == (posCaballo.columna + 1) || 
+        //         filaSelec == (posCaballo.fila - 1) || filaSelec == (posCaballo.fila + 1)){
+        //         return true;
+        //     }
+        // }
+        const camposValidos = [];
+        let valido = false;
+        camposValidos.push([(posCaballo.fila - 2), (posCaballo.columna) + 1],
+                           [(posCaballo.fila - 2), (posCaballo.columna) - 1],
+                           [(posCaballo.fila + 2), (posCaballo.columna) + 1],
+                           [(posCaballo.fila + 2), (posCaballo.columna) - 1],
+                           
+                           [(posCaballo.fila) + 1,(posCaballo.columna - 2)],
+                           [(posCaballo.fila) - 1,(posCaballo.columna - 2)],
+                           [(posCaballo.fila) + 1,(posCaballo.columna + 2)],
+                           [(posCaballo.fila) - 1,(posCaballo.columna + 2)])
+
+
+        camposValidos.forEach(element => {
+            // Las posiciones deben estar dentro del tablero para pintarlas y validarlas
+            if(element[0] >= 0 && element[0] < numFilas && element[1] >= 0 && element[1] < numColumnas){
+                // Pintar campos validos del Caballo
+                if(TABLERO_PIEZAS[element[0]][element[1]].innerHTML == " "){
+                    TABLERO_PIEZAS[element[0]][element[1]].style.backgroundColor = 'yellow';
+                }
+            }
+        });
+
+        camposValidos.forEach(element => {
+            // Validar si el campo elegido es correcto
+            if(filaSelec == element[0] && columnaSelec == element[1]){
+                valido = true;
+            }
+        });
+        if(valido){
+            piezasYcampos.forEach(element => {
+                element.style.backgroundColor = '';    
+            })
+            return valido
+        }
+        return valido; 
+    },
+
+
+    peon: (filaSelec, columnaSelec, posPeon) => {
+        if(posPeon.fila == 1 || posPeon.fila == TABLERO.length - 2){
+            console.log(posPeon.fila);
+            if(posPeon.pieza == '♙' && filaSelec == (posPeon.fila - 2) && columnaSelec == posPeon.columna) return true;
+            if(posPeon.pieza == '♟' && filaSelec == (posPeon.fila + 2) && columnaSelec == posPeon.columna) return true;
+        }
+            if(posPeon.pieza == '♙' && filaSelec == (posPeon.fila - 1) && columnaSelec == posPeon.columna) return true;
+            if(posPeon.pieza == '♟' && filaSelec == (posPeon.fila + 1) && columnaSelec == posPeon.columna) return true;
+
+        return false
+    }
+
+}
+
+
+function errorColorRojo(objetoPiezaCampo,clasePiezas){
+    TABLERO_PIEZAS[objetoPiezaCampo.fila][objetoPiezaCampo.columna].style.backgroundColor = 'red';
+    setTimeout(() => {
+        for(const element of clasePiezas){
+            if(element.style.backgroundColor == 'red'){
+                element.style.backgroundColor = '';                
+            }
+        }
+                
+        
+    }, 500);
+}
