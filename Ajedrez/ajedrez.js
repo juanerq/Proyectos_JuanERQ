@@ -1,34 +1,41 @@
 let canvas = document.getElementById('canvas');
-tablero = canvas.getContext('2d');
+ctx = canvas.getContext('2d');
 
-const TABLERO = [];
+const CHESS = [];
 
 const LETRAS = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","V","W","X","Y","Z"];
-const PIEZAS_NEGRAS = ['♟', '♜', '♞', '♝', '♛', '♚'];
-const PIEZAS_BLANCAS = ['♙', '♖', '♘', '♗', '♕', '♔'];
+const PIECES_BLACK = ['♟', '♜', '♞', '♝', '♛', '♚'];
+const PIECES_WHITE = ['♙', '♖', '♘', '♗', '♕', '♔'];
 
-let numColumnas = 0;
-let numFilas = 0;
-let listLetras = [];
+
+const CONFIG_CHESS = {
+    num_colums: 0,
+    num_rows: 0,
+    size_square: 70,
+    color_square1: '#fff',
+    color_square2: '#000',
+}
+
+let listLetter = [];
 
 //--------> VALIDACIONES [CREACIÓN DE TABLERO] <--------//
 
-while(numColumnas < 8 || numColumnas%2 != 0 ){
-    numColumnas = parseInt(prompt('[ COLUMNAS ]\nDame la cantidad de COLUMNAS del TABLERO.\nEl numero minimo es 8 y debe ser par.'));
+while(CONFIG_CHESS.num_colums < 8 || CONFIG_CHESS.num_colums%2 != 0 ){
+    CONFIG_CHESS.num_colums = parseInt(prompt('[ COLUMNAS ]\nDame la cantidad de COLUMNAS del TABLERO.\nEl numero minimo es 8 y debe ser par.'));
 }
-while(numFilas < 4 || numFilas%2 != 0){
-    numFilas = parseInt(prompt('[ FILAS ]\nDame la cantidad de FILAS del TABLERO.\nEl numero minimo es 4 y debe ser par.'));
+while(CONFIG_CHESS.num_rows < 4 || CONFIG_CHESS.num_rows%2 != 0){
+    CONFIG_CHESS.num_rows = parseInt(prompt('[ FILAS ]\nDame la cantidad de FILAS del TABLERO.\nEl numero minimo es 4 y debe ser par.'));
 }
 
 // Creacion del array
 
-for(let i = 0; i < numFilas; i++){
-    TABLERO[i] = [];
-    for(let j = 0; j < numColumnas; j++){
+for(let i = 0; i < CONFIG_CHESS.num_rows; i++){
+    CHESS[i] = [];
+    for(let j = 0; j < CONFIG_CHESS.num_colums; j++){
 
-        TABLERO[i][j] = ' ';
+        CHESS[i][j] = ' ';
         if(i == 0){
-            listLetras.push(LETRAS[j]);  //-
+            listLetter.push(LETRAS[j]);  
         }
         
     }
@@ -36,29 +43,29 @@ for(let i = 0; i < numFilas; i++){
 
 //--------> COLOCAR Y ODENAR FICHAS EN ARRAY <--------//
 
-let posicionI = (TABLERO[1].length - 8) / 2;
-let posicionF = posicionI + 8;
-let posFicha = 1;
+let posStart = (CONFIG_CHESS.num_colums - 8) / 2;
+let posFinish = posStart + 8;
+let posPieces = 1;
 
-for(let i = posicionI; i < posicionF; i++){
-    if(posFicha != 9){
-        TABLERO[0][i] = ordenarFichas(posFicha, 'negro'); // Negros
-        TABLERO[TABLERO.length-1][i] = ordenarFichas(posFicha, 'blanco'); // Blancos
-        posFicha ++;
+for(let i = posStart; i < posFinish; i++){
+    if(posPieces != 9){
+        CHESS[0][i] = orderPieces(posPieces, 'black'); // Negros
+        CHESS[CONFIG_CHESS.num_rows-1][i] = orderPieces(posPieces, 'white'); // Blancos
+        posPieces ++;
     }
     // Dibujar peones
-    TABLERO[1][i] = ordenarFichas(9, 'negro'); // Negros
-    TABLERO[TABLERO.length-2][i] = ordenarFichas(9, 'blanco'); // Blancos
+    CHESS[1][i] = orderPieces(9, 'black'); // Negros
+    CHESS[CONFIG_CHESS.num_rows-2][i] = orderPieces(9, 'white'); // Blancos
 }
 
-function ordenarFichas(posFicha, colorFicha = 'blanca'){
-    switch (posFicha) {
-        case 9: if(colorFicha == 'negro'){ return '♟'; } return '♙'; //Peón
-        case 1: case 8: if(colorFicha == 'negro'){ return '♜'; } return '♖'; //Torre
-        case 2: case 7: if(colorFicha == 'negro'){ return '♞'; } return '♘'; //Caballo
-        case 3: case 6: if(colorFicha == 'negro'){ return '♝'; } return '♗'; //Alfil
-        case 4: if(colorFicha == 'negro'){ return '♛'; } return '♕'; //Dama
-        case 5: if(colorFicha == 'negro'){ return '♚'; } return '♔'; //Rey
+function orderPieces(posPieces, colorPiece = 'blanca'){
+    switch (posPieces) {
+        case 9:             if(colorPiece == 'black') return '♟';  return '♙'; //Peón
+        case 1: case 8:     if(colorPiece == 'black') return '♜';  return '♖'; //Torre
+        case 2: case 7:     if(colorPiece == 'black') return '♞';  return '♘'; //Caballo
+        case 3: case 6:     if(colorPiece == 'black') return '♝';  return '♗'; //Alfil
+        case 4:             if(colorPiece == 'black') return '♛';  return '♕'; //Dama
+        case 5:             if(colorPiece == 'black') return '♚';  return '♔'; //Rey
         default:
     }
 }
@@ -66,70 +73,74 @@ function ordenarFichas(posFicha, colorFicha = 'blanca'){
 
 //--------> IMPRIMIR TABLERO <--------//
 
-
-console.log(`[${listLetras}]`);
-for(index in TABLERO){
-    console.log(`[${TABLERO[index]}] ${1 + parseInt(index)}`);
+function printChess(listLetter, chess){
+    console.log(`[${listLetter}]`);
+    for(let index in chess){
+        console.log('h');
+        console.log(`[${chess[index]}] ${1 + parseInt(index)}`);
+    }
 }
+printChess();
 
 
 
 //--------> TAMAÑO DEL TABLERO <--------//
-let ancho = 50 * numColumnas;
-let alto = 50 * numFilas;
+let width = CONFIG_CHESS.size_square * CONFIG_CHESS.num_colums;
+let height = CONFIG_CHESS.size_square * CONFIG_CHESS.num_rows;
 
-canvas.width = ancho;
-canvas.height = alto;
+canvas.width = width;
+canvas.height = height;
 
-//-------------------------------------//
 
 //--------> DIBUJAR CUADRADOS <--------//
 
-for(let i = 0; i < numFilas; i++){
-    for(let j = 0; j < numColumnas; j++){
+for(let i = 0; i < CONFIG_CHESS.num_rows; i++){
+    for(let j = 0; j < CONFIG_CHESS.num_colums; j++){
         if((i + j) % 2 == 0){
-            cuadradosTablero(50*j, 50*i, 50*(j+1), 50*(i+1), '#fff');
+            drawSquare(CONFIG_CHESS.size_square*j, CONFIG_CHESS.size_square*i, CONFIG_CHESS.size_square*(j+1), CONFIG_CHESS.size_square*(i+1), CONFIG_CHESS.color_square1);
         }else{
-            cuadradosTablero(50*j, 50*i, 50*(j+1), 50*(i+1), '#000');
+            drawSquare(CONFIG_CHESS.size_square*j, CONFIG_CHESS.size_square*i, CONFIG_CHESS.size_square*(j+1), CONFIG_CHESS.size_square*(i+1), CONFIG_CHESS.color_square2);
         }
     
     }
 }
 
-function cuadradosTablero(ix,iy,fx,fy, color){
-    tablero.beginPath();
-    tablero.rect(ix, iy, fx, fy);
-    tablero.fillStyle = color;
-    tablero.fill();
-    tablero.closePath();
+function drawSquare(ix,iy,fx,fy, color){
+    ctx.beginPath();
+    ctx.rect(ix, iy, fx, fy);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
 }
            
 
 //--------> ORDENAR PIEZAS EN PANTALLA <--------//
-
-let piezas = document.getElementById('piezas')
+$CHESS_DIV = document.getElementById('chess')
 
 const TABLERO_PIEZAS = [];
 let posTop = 0;
 let left = 0;
 
-for(let j = 0; j < numFilas; j++){
+for(let j = 0; j < CONFIG_CHESS.num_rows; j++){
     TABLERO_PIEZAS[j] = [];
-    posTop = j * 50;
-    for(let i = 0; i < numColumnas; i++){
-
+    posTop = j * CONFIG_CHESS.size_square;
+    for(let i = 0; i < CONFIG_CHESS.num_colums; i++){
         // Crear etiqueta <p>
         TABLERO_PIEZAS[j][i] = document.createElement('p')
         TABLERO_PIEZAS[j][i].className = "pieza";
-        piezas.appendChild(TABLERO_PIEZAS[j][i]);
+        $CHESS_DIV.appendChild(TABLERO_PIEZAS[j][i]);
     
-        TABLERO_PIEZAS[j][i].innerHTML = TABLERO[j][i];
-        TABLERO_PIEZAS[j][i].style.top = posTop + 'px';
-        TABLERO_PIEZAS[j][i].style.left = i*50 + 'px';
-        
-    
-        TABLERO_PIEZAS[j][i].addEventListener('click', ()=>{
-            hacerMovimiento(j,i,TABLERO_PIEZAS[j][i]);
+        TABLERO_PIEZAS[j][i].style.width = `${CONFIG_CHESS.size_square}px`;
+        TABLERO_PIEZAS[j][i].style.height = `${CONFIG_CHESS.size_square}px`;
+        TABLERO_PIEZAS[j][i].style.fontSize = `${CONFIG_CHESS.size_square - 20}px`;
+        TABLERO_PIEZAS[j][i].style.lineHeight = `${CONFIG_CHESS.size_square}px`;
+
+        TABLERO_PIEZAS[j][i].innerHTML = CHESS[j][i];
+        TABLERO_PIEZAS[j][i].style.top = `${posTop}px`
+        TABLERO_PIEZAS[j][i].style.left = `${i*CONFIG_CHESS.size_square}px`;
+
+        TABLERO_PIEZAS[j][i].addEventListener('click', () => {
+            movePiece(j,i,TABLERO_PIEZAS[j][i]);
         })
     }
     
@@ -152,18 +163,7 @@ const campoEscogido = {
     campo: ''
 };
 
-function hacerMovimiento(posFila, posColumna, etiqueta){
-    // console.log(posFila,'/',posColumna);
-    // let moverFicha = prompt('Haga un movimiento');
-    
-    // let posColumna = LETRAS.indexOf(moverFicha[0].toUpperCase())
-    // console.log(posColumna );
-    // let posFila = moverFicha.slice(1,moverFicha.length) - 1;
-
-    // if((posColumna == -1 || posColumna >= numColumnas)  || (posFila < 0 || posFila >= numFilas || isNaN(posFila))){
-    //     console.log('Seleccione un campo dentro del tablero');
-    //     return hacerMovimiento();
-    // }
+function movePiece(posFila, posColumna, etiqueta){
 
     if(piezaEscogida.pieza == ''){
         piezaEscogida.fila = posFila;
@@ -181,12 +181,12 @@ function hacerMovimiento(posFila, posColumna, etiqueta){
 
 function validarPieza(pieza,etiqueta){
     let piezaEscontrada;
-    pieza = TABLERO[pieza.fila][pieza.columna];
+    pieza = CHESS[pieza.fila][pieza.columna];
 
     if(turno == 'blanco'){
-        piezaEscontrada =  PIEZAS_BLANCAS.indexOf(pieza);
+        piezaEscontrada =  PIECES_WHITE.indexOf(pieza);
     }else if(turno == 'negro'){
-        piezaEscontrada =  PIEZAS_NEGRAS.indexOf(pieza);
+        piezaEscontrada =  PIECES_BLACK.indexOf(pieza);
     }  
 
     //No encontro la pieza?
@@ -205,7 +205,7 @@ function validarPieza(pieza,etiqueta){
 
 function validarCampo(campo,etiqueta){
     //si da click a la misma pieza una vez mas se deselecciona 
-    let campoSeleccionado = TABLERO[campo.fila][campo.columna];
+    let campoSeleccionado = CHESS[campo.fila][campo.columna];
 
     if(campo.fila == piezaEscogida.fila && campo.columna == piezaEscogida.columna){
         piezasYcampos.forEach(element => {
@@ -234,6 +234,35 @@ function validarCampo(campo,etiqueta){
     return moverPieza(piezaEscogida, campoEscogido);
 }
 
+function moverPieza(pieza, campo){
+    CHESS[campo.fila][campo.columna] = pieza.pieza;
+    CHESS[pieza.fila][pieza.columna] = campo.campo;
+
+    TABLERO_PIEZAS[campo.fila][campo.columna].innerHTML = pieza.pieza; 
+    TABLERO_PIEZAS[pieza.fila][pieza.columna].innerHTML = campo.campo; 
+
+    piezaEscogida.fila = 0;
+    campoEscogido.columna = 0;
+    piezaEscogida.pieza = '';
+    campoEscogido.campo = '';
+
+    printChess(listLetter, CHESS);
+    //Cambiar de turno
+    if(turno == 'blanco'){
+        turno = 'negro';
+    }else if(turno == 'negro'){
+        turno = 'blanco';
+    }
+    
+}
+
+
+
+
+
+
+
+
 
 
 function moverCaballo(filaSelec, columnaSelec, posCaballo){
@@ -250,29 +279,9 @@ function moverCaballo(filaSelec, columnaSelec, posCaballo){
 }
 
 
-function moverPieza(pieza, campo){
-    TABLERO[campo.fila][campo.columna] = pieza.pieza;
-    TABLERO[pieza.fila][pieza.columna] = campo.campo;
-
-    TABLERO_PIEZAS[campo.fila][campo.columna].innerHTML = pieza.pieza; 
-    TABLERO_PIEZAS[pieza.fila][pieza.columna].innerHTML = campo.campo; 
-
-    piezaEscogida.fila = 0;
-    campoEscogido.columna = 0;
-    piezaEscogida.pieza = '';
-    campoEscogido.campo = '';
 
 
-    //Cambiar de turno
-    if(turno == 'blanco'){
-        turno = 'negro';
-    }else if(turno == 'negro'){
-        turno = 'blanco';
-    }
-    
-}
-
-
+// 
 function validarMovimientoPieza(pieza){
     switch (pieza) {
         case '♟': case '♙': return logicaPiezas.peon(campoEscogido.fila, campoEscogido.columna, piezaEscogida);
@@ -312,7 +321,7 @@ const logicaPiezas = {
 
         camposValidos.forEach(element => {
             // Las posiciones deben estar dentro del tablero para pintarlas y validarlas
-            if(element[0] >= 0 && element[0] < numFilas && element[1] >= 0 && element[1] < numColumnas){
+            if(element[0] >= 0 && element[0] < CONFIG_CHESS.num_rows && element[1] >= 0 && element[1] < CONFIG_CHESS.num_colums){
                 // Pintar campos validos del Caballo
                 if(TABLERO_PIEZAS[element[0]][element[1]].innerHTML == " "){
                     TABLERO_PIEZAS[element[0]][element[1]].style.backgroundColor = 'yellow';
@@ -337,7 +346,7 @@ const logicaPiezas = {
 
 
     peon: (filaSelec, columnaSelec, posPeon) => {
-        if(posPeon.fila == 1 || posPeon.fila == TABLERO.length - 2){
+        if(posPeon.fila == 1 || posPeon.fila == CHESS.length - 2){
             if(posPeon.pieza == '♙' && filaSelec == (posPeon.fila - 2) && columnaSelec == posPeon.columna) return true;
             if(posPeon.pieza == '♟' && filaSelec == (posPeon.fila + 2) && columnaSelec == posPeon.columna) return true;
         }
