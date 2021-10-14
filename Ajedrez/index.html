@@ -8,11 +8,29 @@
     <title>Document</title>
 </head>
 <body>
+    <div class="form_size_chess">
+        <form>
+            <div class="input_row">
+                <label for="row">Numero de Filas:</label>
+                <input type="number" id="row">
+            </div>
+                <p id="message_row"></p>
+            
+            <div class="input_column">
+                <label for="column">Numero de Columnas:</label>
+                <input type="number" id="column">
+            </div>
+                <p id="message_column"></p>
+           
+            <button type="button" id="submit_size">crear</button>
+            
+        </form>
+    </div>
     <div class="container_chess">
         <div id="chess"></div>
         <canvas id="canvas"></canvas>
     </div>
     
-    <script src="ajedrez.js"></script>
+    <script src="./ajedrez.js" type="module">import {validate_size_chess} from "./ajedrez.js";</script>
 </body>
 </html>
