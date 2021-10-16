@@ -31,11 +31,14 @@ function orderPieces(posPieces, colorPiece = 'white'){
 
 //--------> IMPRIMIR TABLERO <--------//
 
-function printChess(listLetter, chess){
+function printChess(listLetter, chess, GAME_PROGRESS){
     console.log(`[${listLetter}]`);
     for(let index in chess){
         console.log(`[${chess[index]}] ${1 + parseInt(index)}`);
     }
+    console.log(`[ Fichas comidad ]
+White => ${GAME_PROGRESS.deadPiecesWhite} 
+Black => ${GAME_PROGRESS.deadPiecesBlack}`);
 }
 
 //--------> VISUALIZAR ( COLOR ROJO ) CUANDO NO SE PUEDE SELECCIONA UN CAMPO <--------//

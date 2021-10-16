@@ -42,6 +42,11 @@ const CONFIG_CHESS = {
 
 let turn = 'white';
 
+const GAME_PROGRESS = {
+    deadPiecesWhite: [],
+    deadPiecesBlack: []
+}
+
 const CHOSEN_PIECE = {
     row: 0,
     column: 0,
@@ -67,7 +72,7 @@ function createGameChess(){
     cleanChess(CHOSEN_PIECE, ctx);
     create_chessArray();
     putPieces(CONFIG_CHESS, CHESS);
-    printChess(listLetter, CHESS);
+    printChess(listLetter, CHESS, GAME_PROGRESS);
     sizeChessCanvas();
     orderPiecesScreen();
 }
@@ -132,20 +137,29 @@ function validateChosen(){
         return CHOSEN_PIECE.piece = '';
     }
 
-
-    if(chosenPosition.split(" ").join("").length != 0){
+    let trappedPiece = (turn == 'black') ? PIECES_WHITE.indexOf(chosenPosition) :
+                       (turn == 'white') ? PIECES_BLACK.indexOf(chosenPosition) :
+                                            
+    console.log(trappedPiece);
+    if(chosenPosition.split(" ").join("").length != 0 && trappedPiece == -1){
         console.log('Selecciona un campo vacio');
         return errorColorRed(CHOSEN_POSITION);
-        
     }
 
     let resultado = validarMovimientoPieza(CHOSEN_PIECE.piece);
-    if(resultado == false){
+    if(!resultado){
         console.log(`El movimiento no es valido para esta pieza ${CHOSEN_PIECE.piece}`);
         return errorColorRed(CHOSEN_POSITION);
 
     }
-    
+
+    // Matar piesa
+    if(trappedPiece != -1){
+        chosenPosition = changeToFigures(chosenPosition);
+        (turn == 'white') ? GAME_PROGRESS.deadPiecesBlack.push(chosenPosition) : GAME_PROGRESS.deadPiecesWhite.push(chosenPosition);
+        chosenPosition = '';
+    }
+
     CHOSEN_POSITION.position = chosenPosition;
     CHESS_VIEW[CHOSEN_PIECE.row][CHOSEN_PIECE.column].style.backgroundColor = '';
     // Función para cambiar posicion de pieza
@@ -167,7 +181,7 @@ function moverPieza(pieza, campo){
     CHOSEN_POSITION.position = '';
 
 
-    printChess(listLetter, CHESS);
+    printChess(listLetter, CHESS, GAME_PROGRESS);
     //Cambiar de turno
     if(turn == 'white'){
         turn = 'black';
@@ -207,7 +221,7 @@ function validarMovimientoPieza(pieza){
         case '♛': case '♕': break;
         case '♚': case '♔': break;
         
-        default: break;
+        default: return true;
     }
 }
 
@@ -263,6 +277,7 @@ const logicaPiezas = {
 
         return false
     }
+   
 
 }
 
