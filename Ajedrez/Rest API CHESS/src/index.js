@@ -1,17 +1,24 @@
-const express = require('express');
+const express = require('express')
 const app = express();
 
 // Settings
-const port = 3000;
+const port = 10101;
 
 // Middlewares
 app.use(express.json());
 
 // Routes
-const chess = require('./routes/chess');
+const chess = require('./routes/RestAPIchess');
+app.use('/chess', chess);
 
-app.use('/', chess);
+// Directorio public
+app.use('/resources', express.static('public'));
+app.use('/resources', express.static(__dirname + '/public'));
 
+
+app.get('/', (req, res)=>{
+  res.sendFile('chess.html', {root : __dirname + '/view'});
+})
 
 // Starting the server
 app.listen(port, () => {
