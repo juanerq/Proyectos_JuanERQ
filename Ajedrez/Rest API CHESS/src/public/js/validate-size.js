@@ -13,15 +13,15 @@ function validate_size_chess(){
     
     if(message_column.innerHTML == '' && message_row.innerHTML == ''){
 
-        CONFIG_CHESS.num_colums = parseInt(column_input.value);
+        CONFIG_CHESS.num_columns = parseInt(column_input.value);
         CONFIG_CHESS.num_rows = parseInt(row_input.value);
 
         // Calcular tamaño del tablero dependiendo de la resolución de pantalla, 
         // cantidad de filas y columnas
-        if(CONFIG_CHESS.num_rows >= CONFIG_CHESS.num_colums){
+        if(CONFIG_CHESS.num_rows >= CONFIG_CHESS.num_columns){
             CONFIG_CHESS.size_square = (screen.height - (screen.height * 0.25)) / CONFIG_CHESS.num_rows;
         }else{
-            CONFIG_CHESS.size_square = (screen.width - (screen.width * 0.40)) / CONFIG_CHESS.num_colums;
+            CONFIG_CHESS.size_square = (screen.width - (screen.width * 0.40)) / CONFIG_CHESS.num_columns;
         }
         CONFIG_CHESS.size_piece = CONFIG_CHESS.size_square - (CONFIG_CHESS.size_square * 0.25);
 

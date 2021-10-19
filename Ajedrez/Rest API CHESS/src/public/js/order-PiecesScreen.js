@@ -13,7 +13,7 @@ function orderPiecesScreen(){
         CHESS_VIEW[indexRow] = [];
         posTop = indexRow * CONFIG_CHESS.size_square;
 
-        for(let indexColumn = 0; indexColumn < CONFIG_CHESS.num_colums; indexColumn++){
+        for(let indexColumn = 0; indexColumn < CONFIG_CHESS.num_columns; indexColumn++){
             // Crear etiqueta <div> para cada espacio y ficha del tablero
             CHESS_VIEW[indexRow][indexColumn] = document.createElement('div')
             CHESS_VIEW[indexRow][indexColumn].className = "piece";         // Nombre de la clase de cada etiqueta

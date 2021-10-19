@@ -18,7 +18,7 @@ const message_row = document.getElementById('message_row');
 const $CHESS_DIV = document.getElementById('chess')
 const $PIECES_DIV = document.getElementsByClassName('piece');
 
-const CHESS = [1,2];
+const CHESS = [];
 const CHESS_VIEW = [];
 
 const LETTER = [" A ", " B "," C "," D "," E "," F "," G "," H "," I "," J "," K "," L "," M "," N "," O "," P "," Q "," R "," S "," T "," V "," W "," X "," Y "," Z "];
@@ -29,7 +29,7 @@ const PIECES_WHITE = ['W-P', 'W-T', 'W-H', 'W-B', 'W-K', 'W-Q'];
 
 
 const CONFIG_CHESS = {
-    num_colums: 0,
+    num_columns: 0,
     num_rows: 0,
 
     size_square: 0,
@@ -70,11 +70,12 @@ function cleanChess(CHOSEN_PIECE, ctx){
 
 function createGameChess(){
     cleanChess(CHOSEN_PIECE, ctx);
-    create_chessArray();
-    putPieces(CONFIG_CHESS, CHESS);
+    console.log(CONFIG_CHESS.num_rows, CONFIG_CHESS.num_columns);
+    create_chessArray(CONFIG_CHESS.num_rows, CONFIG_CHESS.num_columns);
+    putPieces();
     printChess(listLetter, CHESS, GAME_PROGRESS);
-    // sizeChessCanvas();
-    // orderPiecesScreen();
+    sizeChessCanvas();
+    orderPiecesScreen();
 }
 
 
@@ -243,7 +244,7 @@ const logicaPiezas = {
 
         camposValidos.forEach(element => {
             // Las posiciones deben estar dentro del tablero para pintarlas y validarlas
-            if(element[0] >= 0 && element[0] < CONFIG_CHESS.num_rows && element[1] >= 0 && element[1] < CONFIG_CHESS.num_colums){
+            if(element[0] >= 0 && element[0] < CONFIG_CHESS.num_rows && element[1] >= 0 && element[1] < CONFIG_CHESS.num_columns){
                 // Pintar campos validos del Caballo
                 if(CHESS_VIEW[element[0]][element[1]].innerHTML.split(" ").join("") .length == 0){
                     CHESS_VIEW[element[0]][element[1]].style.backgroundColor = 'yellow';

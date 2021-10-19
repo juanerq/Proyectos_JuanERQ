@@ -1,36 +1,22 @@
 const express = require('express');
 const router = express.Router();
 
-let mysql = require('mysql');
-let CREDENTIALS = require('../config/mysql');
+let db = require('../db/mysql');
+const CHESS = [['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','',''],
+               ['','','','','','','','']];
 
 
-const connection = mysql.createConnection(CREDENTIALS);
-connection.connect((err) => {
-    if(err) throw err;
-    console.log('Connectado a la base de datos!');
-});
-
-
-
-// import { PIECES_BLACK, PIECES_WHITE } from'./js/create-chessArray.js';
-const PIECES_BLACK = {
-    towerleft: '0,0',
-    knightleft: '0,1',
-    bishopleft: '0,2',
-    king: '0,3',
-    queen: '0,4',
-    bishopright: '0,5',
-    knightright: '0,6',
-    towerright: '0,7',
-    pawns: ['1,0','1,1','1,2','1,3','1,4','1,5','1,6','1,7']
-}
-
-function printChess(piecesBlack, piecesWhite){
+function printChess(piecesBlack, piecesWhite, CHESS, start, finish){
     
     let posPieces = 1;
     let posPawn = 9;
-    for(let i = 0; i < CHESS[0].length; i++){
+    for(let i = start; i < finish; i++){
         // Piezas
         if(posPieces <= 8) CHESS[0][i] = returnPiece(piecesBlack, posPieces);
         // Peones
@@ -41,19 +27,41 @@ function printChess(piecesBlack, piecesWhite){
         // Peones
         if(posPawn > 8 && posPawn <= 16) CHESS[CHESS.length - 2][i] = returnPiece(piecesWhite, posPawn);
         posPieces ++; 
+        posPawn ++;
     }
-    console.log(CHESS);
+    return CHESS
 }
 
 function returnPiece(pieces, num){
     let numPiece = 1;
-    for(const element in pieces[0]){
-        if(element != 'idpieces' && element != 'idpawn'){
-            if(numPiece == num) return pieces[0][element]
+    for(const element in pieces){
+        if(element != 'idpwhite' && element != 'idpawnwhite' && element != 'idpblack' && element != 'idpawnblack'){
+            if(numPiece == num) return pieces[element]
+
             numPiece++;
         }
         
     }
+}
+
+
+function addPositionPieces(connection, objectPieces, color = 'white'){
+    return new Promise((resolve, reject) =>{
+        connection.query('INSERT INTO pawn'+color+' SET ?', toObject(objectPieces.pawns) , (err, results) => {
+            if(err) return reject(err);
+            
+            objectPieces['idpawn'+color] = `${results.insertId}`;
+            delete objectPieces['pawns'];
+
+            connection.query('INSERT INTO pieces'+color+' SET ?', objectPieces, (err, results) => {
+                if(err) return reject(err);
+                
+                objectPieces['idp'+color] = `${results.insertId}`;
+                return resolve(objectPieces)
+            })    
+            
+        })
+    })
 }
 
 function toObject(arr) {
@@ -62,99 +70,47 @@ function toObject(arr) {
       rv[`pawn${i+1}`] = arr[i];
     return rv;
   }
-
+  
 
 
 // OBTENER DATOS DE LAS PIEZAS
-router.get('/:idpieces', (req, res) => {
-    const { idpieces } = req.params;
-    connection.query('SELECT * FROM pieces pc, pawn pw WHERE pc.idpawn = pw.idpawn and pc.idpieces = ?', [idpieces], (err, rows, fields) => {
-        
-        if(!err){
-            printChess(rows, rows)
-            return res.json(rows);
-        }else{
-            console.log('Error:', err);
-        }
-        
+router.get('/:idgame', (req, res) => {
+    const connection = db.connection()
+    const { idgame } = req.params;
+    db.getPositionPieces(connection, idgame, 'black').then(resolve =>{
+
+        const piecesBlack = resolve[0]
+        db.getPositionPieces(connection, idgame, 'white').then(resolve =>{
+
+            const piecesWhite = resolve[0]
+            // let chess2 = printChess(piecesBlack, piecesWhite, CHESS);
+
+            res.json({Status: 'Positions Obtained', piecesWhite: piecesWhite, piecesBlack: piecesBlack});
+        })
     })
 })
 
 
-
 // CREAR NUEVOS DATOS DE PIEZAS (idpieces debe ser 0)
-// router.post('/:idpieces', (req, res) => {
-//     // PIECES['idpieces'] = req.body.idpieces;
-//     const { towerleft, knightleft, king, bishopright, knightright,towerright, bishopleft, queen } = req.body;
-//     const { idpieces } = req.params;
-//     const { pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8} = toObject(req.body.pawns);
-//     const query = 'CALL piecesPositionAddOrEdit(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+router.post('/:idpieces', async (req, res) => {
+    const connection = db.connection()
+    const POSITION_PIECES = req.body;
 
-//     connection.query(query, [idpieces, towerleft, knightleft, king, bishopright, knightright, 
-// 		towerright, bishopleft, queen, pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8], (err, rows, fields) => {
-//             if(!err){
-//                 res.json({Status: 'Employeed Saved'});
-//             }else{
-//                 console.log('Error:', err);
-//             }
-//         })
-// })
+        db.addPositionPieces(connection, POSITION_PIECES[1], 'white').then(resolve =>{
 
-router.post('/:idpieces', (req, res) => {
+            db.addPositionPieces(connection, POSITION_PIECES[0], 'black').then(resolve =>{
 
-    const piecesBlack = req.body;
-    piecesBlack['idpieces'] = req.params.idpieces;
+                connection.query('INSERT INTO game SET ?', {pwhite: POSITION_PIECES[1]['idpwhite'], pblack: POSITION_PIECES[0]['idpblack']}, (err, results) => {
+                    if(err) return reject(err);
+                    res.json({Status: 'Saved Pieces Position', idgame: results.insertId});
+                    // idgame = `${results.insertId}`;
+                    connection.end()
+                }) 
 
-    connection.query('INSERT INTO pawn SET ?', toObject(req.body.pawns), (err, rows, fields) => {
-            if(!err){
-                piecesBlack['idpawn'] = `${rows.insertId}`;
-                res.json({Status: 'Employeed Saved'});
+            }).catch(err => console.log(err))
 
-                delete piecesBlack['pawns'];
-
-                connection.query('INSERT INTO pieces SET ?', piecesBlack, (err, rows, fields) => {
-                    if(!err){
-                        res.json({Status: 'Employeed Saved'});
-                    }else{
-                        console.log('Error:', err);
-                    }
-                })
-            }else{
-                console.log('Error:', err);
-            }
-        })
+        }).catch(err => console.log(err))
 })
-
-
-router.post('/:idpieces', (req, res) => {
-
-    const piecesBlack = req.body;
-    piecesBlack['idpieces'] = req.params.idpieces;
-
-    connection.query('INSERT INTO pawn SET ?', toObject(req.body.pawns), (err, rows, fields) => {
-            if(!err){
-                piecesBlack['idpawn'] = `${rows.insertId}`;
-                res.json({Status: 'Employeed Saved'});
-
-                delete piecesBlack['pawns'];
-
-                connection.query('INSERT INTO pieces SET ?', piecesBlack, (err, rows, fields) => {
-                    if(!err){
-                        res.json({Status: 'Employeed Saved'});
-                    }else{
-                        console.log('Error:', err);
-                    }
-                })
-            }else{
-                console.log('Error:', err);
-            }
-        })
-})
-
-
-
-
-
 
 
 // ACTUALIZAR DATOS DE PIEZAS (idpieces debe tener la primatykey del campo a actualizar)
@@ -173,3 +129,22 @@ router.put('/:idpieces', (req, res) => {
 })
 
 module.exports = router; 
+
+
+
+// router.post('/:idpieces', (req, res) => {
+//     // PIECES['idpieces'] = req.body.idpieces;
+//     const { towerleft, knightleft, king, bishopright, knightright,towerright, bishopleft, queen } = req.body;
+//     const { idpieces } = req.params;
+//     const { pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8} = toObject(req.body.pawns);
+//     const query = 'CALL piecesPositionAddOrEdit(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+
+//     connection.query(query, [idpieces, towerleft, knightleft, king, bishopright, knightright, 
+// 		towerright, bishopleft, queen, pawn1, pawn2, pawn3, pawn4, pawn5, pawn6, pawn7, pawn8], (err, rows, fields) => {
+//             if(!err){
+//                 res.json({Status: 'Employeed Saved'});
+//             }else{
+//                 console.log('Error:', err);
+//             }
+//         })
+// })
