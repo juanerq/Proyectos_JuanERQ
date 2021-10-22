@@ -36,7 +36,6 @@ function validate_size_chess(){
            
         }
         return putPieces(CHESS);
-       
     }
 }
 export { validate_size_chess };

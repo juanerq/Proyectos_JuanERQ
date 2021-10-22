@@ -11,8 +11,10 @@ app.use(express.json());
 // const chess = require('./routes/RestAPIchess');
 const addPieces = require('./routes/addPositionPieces');
 const getPieces = require('./routes/getPositionPieces');
+const updatePieces = require('./routes/updatePositionPieces');
 app.use('/', addPieces);
 app.use('/', getPieces);
+app.use('/', updatePieces);
 
 // Directorio public
 app.use('/resources', express.static('public'));

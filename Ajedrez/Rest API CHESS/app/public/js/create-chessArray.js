@@ -32,6 +32,7 @@ function putPieces(CHESS){
 
     if(idgame){
         const getPositionPieces = async (idgame) => {
+            console.log('holllll');
             try {
                 const resPieces = await fetch('/'+idgame,{
                     method: 'GET',

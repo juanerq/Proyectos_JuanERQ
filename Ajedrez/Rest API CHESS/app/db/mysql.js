@@ -15,16 +15,16 @@ function connection(){
 // Añadir posición de las piezas a la base de datos
 function addPositionPieces(connection, objectPieces, color = 'white'){
     return new Promise((resolve, reject) =>{
-        connection.query('INSERT INTO pawn'+color+' SET ?', arrayToObject(objectPieces.pawns) , (err, results) => {
+        connection.query(`INSERT INTO pawn${color} SET ?`, arrayToObject(objectPieces.pawns) , (err, results) => {
             if(err) return reject(err);
             
-            objectPieces['idpawn'+color] = `${results.insertId}`;
+            objectPieces[`idpawn${color}`] = `${results.insertId}`;
             delete objectPieces['pawns'];
 
-            connection.query('INSERT INTO pieces'+color+' SET ?', objectPieces, (err, results) => {
+            connection.query(`INSERT INTO pieces${color} SET ?`, objectPieces, (err, results) => {
                 if(err) return reject(err);
                 
-                objectPieces['idp'+color] = `${results.insertId}`;
+                objectPieces[`idp${color}`] = `${results.insertId}`;
                 return resolve(objectPieces)
             })    
             
@@ -35,7 +35,7 @@ function addPositionPieces(connection, objectPieces, color = 'white'){
 // Obtener posición de las piezas de la base de datos
 function getPositionPieces(connection, idgame, color = 'white'){
     return new Promise((resolve, reject) =>{
-        connection.query('SELECT pieces'+color+'.*, pawn'+color+'.* FROM game g, pieces'+color+', pawn'+color+' WHERE g.p'+color+'=pieces'+color+'.idp'+color+' and pieces'+color+'.idpawn'+color+'=pawn'+color+'.idpawn'+color+' and g.idgame = ?', idgame, (err, results) => {
+        connection.query(`SELECT pieces${color}.*, pawn${color}.* FROM game g, pieces${color}, pawn${color} WHERE g.p${color}=pieces${color}.idp${color} and pieces${color}.idpawn${color}=pawn${color}.idpawn${color} and g.idgame = ?`, idgame, (err, results) => {
             if(err) return reject(err);
             
             return resolve(results)
@@ -44,8 +44,34 @@ function getPositionPieces(connection, idgame, color = 'white'){
     })
 }
 
+
+function updatePositionPieces(connection, objectPieces, idpieces, idpawn, color = 'white'){
+    console.log(idpieces, idpawn);
+    return new Promise((resolve, reject) =>{       
+        connection.query(`UPDATE pawn${color} SET ? WHERE idpawn${color} = ${idpawn}`, arrayToObject(objectPieces.pawns), (err, results) => {
+            if(err) return reject(err);
+
+            delete objectPieces['pawns'];
+           
+            connection.query(`UPDATE pieces${color} SET ?  WHERE idp${color}=${idpieces}`, objectPieces, (err, results) => {
+                if(err) return reject(err);
+
+                return resolve(objectPieces)
+            })    
+            
+        })
+    })
+}
+
+
+
+
+
+
+
 module.exports = {
     connection,
     addPositionPieces,
-    getPositionPieces
+    getPositionPieces,
+    updatePositionPieces
 }

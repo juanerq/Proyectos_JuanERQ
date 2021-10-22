@@ -74,15 +74,15 @@ const POSITION_PIECES_BLACK = {
 }
 
 const POSITION_PIECES_WHITE = {
-    towerleft: '',
-    knightleft: '',
-    bishopleft: '',
-    queen: '',
-    king: '',
-    bishopright: '',
-    knightright: '',
-    towerright: '',
-    pawns: []
+    towerleft: '9',
+    knightleft: '9',
+    bishopleft: '9',
+    queen: '9',
+    king: '9',
+    bishopright: '9',
+    knightright: '9',
+    towerright: '9',
+    pawns: [3,3,3,3,3,3,3,3]
 }
 
 function updatePositionPieces(objectPiece, CHOSEN_PIECE, CHOSEN_POSITION){
@@ -252,6 +252,7 @@ function moverPieza(pieza, campo){
     (turn == 'white') ? updatePositionPieces(POSITION_PIECES_WHITE, pieza, campo) :
     updatePositionPieces(POSITION_PIECES_BLACK, pieza, campo);
     
+    
 
     console.log(POSITION_PIECES_WHITE);
     
@@ -364,6 +365,26 @@ const logicaPiezas = {
 }
 
 
+
+    const putPositionPieces = async (positionPieces) => {
+        try {
+            const resPieces = await fetch('/',{
+                method: 'PUT',
+                body: JSON.stringify(positionPieces),
+                headers: { "Content-type": "application/json" }
+            })
+            const data = await resPieces.json(); 
+            console.log(data);
+    
+        } catch(error) {
+            console.log(error);
+        }
+    }
+    putPositionPieces([POSITION_PIECES_BLACK, POSITION_PIECES_WHITE]);
+
+
 export { canvas, ctx, row_input, column_input, message_column, message_row, $CHESS_DIV, $PIECES_DIV, CONFIG_CHESS, CHESS, CHESS_VIEW, PIECES_BLACK, listLetter,LETTER, PIECES_WHITE, CHOSEN_PIECE, CHOSEN_POSITION, turn, movePiece };
 export { POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean,ObjectToChess }
 export { createGameChess, cleanChess };
+
+
