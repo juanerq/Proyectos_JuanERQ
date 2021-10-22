@@ -1,9 +1,8 @@
-import { changeToFigures, printChess, errorColorRed } from './js/other-functions.js';
+import { changeToFigures, printChess, errorColorRed, orderPieces } from './js/other-functions.js';
 import { validate_size_chess } from './js/validate-size.js'
 import { create_chessArray, putPieces } from './js/create-chessArray.js'
 import { sizeChessCanvas } from './js/create-canvas.js';
 import { orderPiecesScreen } from './js/order-PiecesScreen.js';
-
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -24,7 +23,7 @@ const CHESS_VIEW = [];
 const LETTER = [" A ", " B "," C "," D "," E "," F "," G "," H "," I "," J "," K "," L "," M "," N "," O "," P "," Q "," R "," S "," T "," V "," W "," X "," Y "," Z "];
 const listLetter = [];
 
-const PIECES_BLACK = ['B-P', 'B-T', 'B-H', 'B-B', 'B-K', 'B-Q'];
+const PIECES_BLACK = ['B-P', 'B-T', 'B-H', 'B-B', 'B-K', 'B-Q'];                     
 const PIECES_WHITE = ['W-P', 'W-T', 'W-H', 'W-B', 'W-K', 'W-Q'];
 
 
@@ -42,6 +41,9 @@ const CONFIG_CHESS = {
 
 let turn = 'white';
 
+const deadPiecesWhite = document.getElementById('dead_pieces_white');
+const deadPiecesBlack = document.getElementById('dead_pieces_black');
+
 const GAME_PROGRESS = {
     deadPiecesWhite: [],
     deadPiecesBlack: []
@@ -58,24 +60,89 @@ const CHOSEN_POSITION = {
     position: ''
 };
 
+
+const POSITION_PIECES_BLACK = {
+    towerleft: '',
+    knightleft: '',
+    bishopleft: '',
+    queen: '',
+    king: '',
+    bishopright: '',
+    knightright: '',
+    towerright: '',
+    pawns: []
+}
+
+const POSITION_PIECES_WHITE = {
+    towerleft: '',
+    knightleft: '',
+    bishopleft: '',
+    queen: '',
+    king: '',
+    bishopright: '',
+    knightright: '',
+    towerright: '',
+    pawns: []
+}
+
+function updatePositionPieces(objectPiece, CHOSEN_PIECE, CHOSEN_POSITION){
+    for(const element in objectPiece){
+        if(element != 'pawns'){
+            if(`${CHOSEN_PIECE.row},${CHOSEN_PIECE.column}` == objectPiece[element]){
+                console.log(element);
+                return objectPiece[element] = `${CHOSEN_POSITION.row},${CHOSEN_POSITION.column}`
+            }
+        }else{
+            objectPiece[element].forEach((value, index) => {
+                if(`${CHOSEN_PIECE.row},${CHOSEN_PIECE.column}` == objectPiece[element][index]){
+                    console.log(objectPiece[element][index]);
+                    return objectPiece[element][index] = `${CHOSEN_POSITION.row},${CHOSEN_POSITION.column}`
+                }
+            })
+        }
+    }
+}
+
 submit_size.addEventListener('click', validate_size_chess);
 
+function clean(){
+    for(let i = 0; i < CONFIG_CHESS.num_rows; i++){
+        for(let j = 0; j < CONFIG_CHESS.num_columns; j++){
+            CHESS[i][j] = '   ';
+            CHESS_VIEW[i][j].innerHTML = '';
+        } 
+    }   
+}
+function ObjectToChess(piecesObject, color){
+    let selectPieces = 1;        
+    for(const element in piecesObject){
+        if(element != 'idpwhite' && element != 'idpawnwhite' && element != 'idpblack' && element != 'idpawnblack'){
+            let pos = piecesObject[element]
+            pos = pos.split(',');
+            CHESS[pos[0]][pos[1]] = orderPieces(selectPieces, color);
+            CHESS_VIEW[pos[0]][pos[1]].innerHTML = changeToFigures(orderPieces(selectPieces, color));
+            if(selectPieces != 9) selectPieces++; 
+        }
+    }
+}
 
-
-function cleanChess(CHOSEN_PIECE, ctx){
+function cleanChess(){
     turn = 'white';
     CHOSEN_PIECE.piece = '';
+    GAME_PROGRESS.deadPiecesWhite.length = 0;
+    GAME_PROGRESS.deadPiecesBlack.length = 0;
+    deadPiecesWhite.innerHTML = '';
+    deadPiecesBlack.innerHTML = '';
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function createGameChess(){
     cleanChess(CHOSEN_PIECE, ctx);
-    console.log(CONFIG_CHESS.num_rows, CONFIG_CHESS.num_columns);
     create_chessArray(CONFIG_CHESS.num_rows, CONFIG_CHESS.num_columns);
-    putPieces();
+    putPieces(CHESS);
     printChess(listLetter, CHESS, GAME_PROGRESS);
     sizeChessCanvas();
-    orderPiecesScreen();
+    orderPiecesScreen(CHESS);
 }
 
 
@@ -83,12 +150,12 @@ function createGameChess(){
 
 // clases de las piezas (HTML)
 
-function movePiece(posRow, posColumn, selectedTag){
+function movePiece(posRow, posColumn, selectedTag, CHESS){
 
     if(CHOSEN_PIECE.piece.length == 0){
         CHOSEN_PIECE.row = posRow;
         CHOSEN_PIECE.column = posColumn;
-        return validatePiece(CHOSEN_PIECE, selectedTag);
+        return validatePiece(CHESS, CHOSEN_PIECE, selectedTag);
     }
 
     if(CHOSEN_POSITION.position.length == 0){
@@ -100,7 +167,7 @@ function movePiece(posRow, posColumn, selectedTag){
 }
 
 
-function validatePiece(CHOSEN_PIECE, selectedTag){
+function validatePiece(CHESS, CHOSEN_PIECE, selectedTag){
     let piezaEscontrada;
     let pieza = CHESS[CHOSEN_PIECE.row][CHOSEN_PIECE.column];
     if(turn == 'white'){
@@ -154,11 +221,17 @@ function validateChosen(){
 
     }
 
-    // Matar piesa
+    // Matar pieza
     if(trappedPiece != -1){
         chosenPosition = changeToFigures(chosenPosition);
-        (turn == 'white') ? GAME_PROGRESS.deadPiecesBlack.push(chosenPosition) : GAME_PROGRESS.deadPiecesWhite.push(chosenPosition);
-        chosenPosition = '';
+        if(turn == 'white'){
+            GAME_PROGRESS.deadPiecesBlack.push(chosenPosition);
+            deadPiecesWhite.innerHTML = GAME_PROGRESS.deadPiecesBlack.join(" ");
+        }else{
+            GAME_PROGRESS.deadPiecesWhite.push(chosenPosition);
+            deadPiecesBlack.innerHTML = GAME_PROGRESS.deadPiecesWhite.join(" ");
+        } 
+        chosenPosition = '   ';
     }
 
     CHOSEN_POSITION.position = chosenPosition;
@@ -176,11 +249,19 @@ function moverPieza(pieza, campo){
     CHESS_VIEW[campo.row][campo.column].innerHTML = changeToFigures(pieza.piece); 
     CHESS_VIEW[pieza.row][pieza.column].innerHTML = changeToFigures(campo.position); 
 
+    (turn == 'white') ? updatePositionPieces(POSITION_PIECES_WHITE, pieza, campo) :
+    updatePositionPieces(POSITION_PIECES_BLACK, pieza, campo);
+    
+
+    console.log(POSITION_PIECES_WHITE);
+    
+    console.log(POSITION_PIECES_BLACK);
     CHOSEN_PIECE.row = 0;
     CHOSEN_POSITION.column = 0;
     CHOSEN_PIECE.piece = '';
     CHOSEN_POSITION.position = '';
 
+    
 
     printChess(listLetter, CHESS, GAME_PROGRESS);
     //Cambiar de turno
@@ -283,7 +364,6 @@ const logicaPiezas = {
 }
 
 
-
-
 export { canvas, ctx, row_input, column_input, message_column, message_row, $CHESS_DIV, $PIECES_DIV, CONFIG_CHESS, CHESS, CHESS_VIEW, PIECES_BLACK, listLetter,LETTER, PIECES_WHITE, CHOSEN_PIECE, CHOSEN_POSITION, turn, movePiece };
-export { createGameChess };
+export { POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean,ObjectToChess }
+export { createGameChess, cleanChess };

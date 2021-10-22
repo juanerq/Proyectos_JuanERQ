@@ -8,13 +8,15 @@ const port = 10101;
 app.use(express.json());
 
 // Routes
-const chess = require('./routes/RestAPIchess');
-app.use('/chess', chess);
+// const chess = require('./routes/RestAPIchess');
+const addPieces = require('./routes/addPositionPieces');
+const getPieces = require('./routes/getPositionPieces');
+app.use('/', addPieces);
+app.use('/', getPieces);
 
 // Directorio public
 app.use('/resources', express.static('public'));
 app.use('/resources', express.static(__dirname + '/public'));
-
 
 app.get('/', (req, res)=>{
   res.sendFile('chess.html', {root : __dirname + '/view'});

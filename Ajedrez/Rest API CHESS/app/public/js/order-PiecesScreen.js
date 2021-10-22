@@ -33,7 +33,7 @@ function orderPiecesScreen(){
             CHESS_VIEW[indexRow][indexColumn].style.left = `${indexColumn * CONFIG_CHESS.size_square}px`;
     
             CHESS_VIEW[indexRow][indexColumn].addEventListener('click', () => {
-                return movePiece(indexRow, indexColumn, CHESS_VIEW[indexRow][indexColumn]);
+                return movePiece(indexRow, indexColumn, CHESS_VIEW[indexRow][indexColumn], CHESS);
             })
         }
     }

@@ -1,5 +1,7 @@
-import { row_input, column_input, message_column, message_row, CONFIG_CHESS, createGameChess } from '../chess.js';
+import { row_input, column_input, message_column, message_row, CONFIG_CHESS, createGameChess, CHESS } from '../chess.js';
+import { putPieces } from './create-chessArray.js';
 
+let hola = true;
 function validate_size_chess(){
    
     message_column.innerHTML = '';
@@ -27,7 +29,14 @@ function validate_size_chess(){
 
         row_input.value = "0";
         column_input.value = "0";
-        return createGameChess();
+        if(hola){
+            console.log('createGameChess');
+            hola = false;
+            return createGameChess();
+           
+        }
+        return putPieces(CHESS);
+       
     }
 }
 export { validate_size_chess };

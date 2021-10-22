@@ -12,9 +12,6 @@ body{
     display: flex;
     justify-content: center;
 }
-canvas{
-    
-}
 #chess{
     position: relative;
     
@@ -32,11 +29,28 @@ canvas{
     background-color: #0da2ef;
     
 }
+.container{
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+#dead_pieces_white, #dead_pieces_black{
+    width: 300px;
+    height: 142px;
+    font-size: 35px;
+    margin: 30px 0;
+}
+#dead_pieces_white{
+    display: flex;
+    flex-direction: column-reverse;
+}
+
 
 .form_size_chess{
     margin: 20px 50px;
     width: 350px;
- 
     border-radius: 20px;
     background: linear-gradient(120deg, rgb(0, 13, 36) 0%, rgba(116,9,121,1) 0%, rgb(0, 183, 255) 100%);
     padding: 20px;
