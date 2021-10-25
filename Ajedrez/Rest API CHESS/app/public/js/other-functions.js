@@ -1,4 +1,4 @@
-import { CHESS_VIEW, $PIECES_DIV } from '../chess.js';
+import { CHESS_VIEW, HTML_TAGS } from '../chess.js';
 
 
 //--------> CAMBIAR LETRAS A FICHAS <--------//
@@ -47,7 +47,7 @@ function errorColorRed(posError) {
     CHESS_VIEW[posError.row][posError.column].style.backgroundColor = 'red';
     
     setTimeout(() => {
-        for(const element of $PIECES_DIV){
+        for(const element of HTML_TAGS.$PIECES_DIV){
             if(element.style.backgroundColor == 'red'){
                 return element.style.backgroundColor = '';;                
             }

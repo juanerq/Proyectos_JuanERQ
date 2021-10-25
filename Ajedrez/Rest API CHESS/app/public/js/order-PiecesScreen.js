@@ -1,11 +1,12 @@
-import { CONFIG_CHESS, CHESS, CHESS_VIEW, $CHESS_DIV, movePiece } from '../chess.js';
+import { CONFIG_CHESS, CHESS, CHESS_VIEW, HTML_TAGS } from '../chess.js';
+import { movePiece } from './validate-move.js'
 import { changeToFigures } from './other-functions.js';
 
 //--------> ORDENAR PIEZAS EN PANTALLA <--------//
 
 function orderPiecesScreen(){
     CHESS_VIEW.length = 0;
-    $CHESS_DIV.innerHTML = '';
+    HTML_TAGS.$CHESS_DIV.innerHTML = '';
     let posTop = 0;
     
     for(let indexRow = 0; indexRow < CONFIG_CHESS.num_rows; indexRow++){
@@ -17,7 +18,7 @@ function orderPiecesScreen(){
             // Crear etiqueta <div> para cada espacio y ficha del tablero
             CHESS_VIEW[indexRow][indexColumn] = document.createElement('div')
             CHESS_VIEW[indexRow][indexColumn].className = "piece";         // Nombre de la clase de cada etiqueta
-            $CHESS_DIV.appendChild(CHESS_VIEW[indexRow][indexColumn]);     // adjuntamos la etiqueta hija en la padre id="chess"
+            HTML_TAGS.$CHESS_DIV.appendChild(CHESS_VIEW[indexRow][indexColumn]);     // adjuntamos la etiqueta hija en la padre id="chess"
         
             // Estilos para ajustar el tamaño de las piesas y cuadros
             CHESS_VIEW[indexRow][indexColumn].style.width = `${CONFIG_CHESS.size_square}px`;

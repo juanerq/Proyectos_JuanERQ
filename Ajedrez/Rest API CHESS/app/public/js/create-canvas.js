@@ -1,12 +1,12 @@
-import { canvas, ctx, CONFIG_CHESS } from '../chess.js'
+import { HTML_TAGS, CONFIG_CHESS } from '../chess.js'
 
 function sizeChessCanvas(){
     
     let width = CONFIG_CHESS.size_square * CONFIG_CHESS.num_columns;
     let height = CONFIG_CHESS.size_square * CONFIG_CHESS.num_rows;
     
-    canvas.width = width;
-    canvas.height = height;
+    HTML_TAGS.canvas.width = width;
+    HTML_TAGS.canvas.height = height;
     
     //--------> DIBUJAR CUADRADOS <--------//
     
@@ -24,11 +24,11 @@ function sizeChessCanvas(){
     
 
 function drawSquare(ix,iy,fx,fy, color){
-    ctx.beginPath();
-    ctx.rect(ix, iy, fx, fy);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.closePath();
+    HTML_TAGS.ctx.beginPath();
+    HTML_TAGS.ctx.rect(ix, iy, fx, fy);
+    HTML_TAGS.ctx.fillStyle = color;
+    HTML_TAGS.ctx.fill();
+    HTML_TAGS.ctx.closePath();
 }
      
 export { sizeChessCanvas };

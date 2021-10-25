@@ -45,21 +45,27 @@ function getPositionPieces(connection, idgame, color = 'white'){
 }
 
 
-function updatePositionPieces(connection, objectPieces, idpieces, idpawn, color = 'white'){
-    console.log(idpieces, idpawn);
-    return new Promise((resolve, reject) =>{       
-        connection.query(`UPDATE pawn${color} SET ? WHERE idpawn${color} = ${idpawn}`, arrayToObject(objectPieces.pawns), (err, results) => {
+function updatePositionPieces(connection, objectPieces, idgame, color = 'white'){
+    return new Promise((resolve, reject) =>{  
+        
+        connection.query(`SELECT p.idp${color} as idpieces, p.idpawn${color} as idpawns FROM game g, pieces${color} p WHERE g.p${color} = p.idp${color} and g.idgame = ?`, idgame, (err, results) => {
             if(err) return reject(err);
+            let id = results;
+            console.log(id);
 
-            delete objectPieces['pawns'];
-           
-            connection.query(`UPDATE pieces${color} SET ?  WHERE idp${color}=${idpieces}`, objectPieces, (err, results) => {
+            connection.query(`UPDATE pawn${color} SET ? WHERE idpawn${color} = ${id[0].idpawns}`, arrayToObject(objectPieces.pawns), (err, results) => {
                 if(err) return reject(err);
-
-                return resolve(objectPieces)
-            })    
+    
+                delete objectPieces['pawns'];
+                connection.query(`UPDATE pieces${color} SET ?  WHERE idp${color}=${id[0].idpieces}`, objectPieces, (err, results) => {
+                    if(err) return reject(err);
+    
+                    return resolve(objectPieces)
+                })    
+                
+            })
             
-        })
+        })    
     })
 }
 

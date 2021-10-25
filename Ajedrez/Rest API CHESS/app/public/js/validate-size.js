@@ -1,22 +1,22 @@
-import { row_input, column_input, message_column, message_row, CONFIG_CHESS, createGameChess, CHESS } from '../chess.js';
+import { HTML_TAGS, CONFIG_CHESS, createGameChess, CHESS } from '../chess.js';
 import { putPieces } from './create-chessArray.js';
 
 let hola = true;
 function validate_size_chess(){
    
-    message_column.innerHTML = '';
-    message_row.innerHTML = '';
-    if(column_input.value < 8 || column_input.value % 2 != 0 ){
-        message_column.innerHTML = 'El numero minimo de columnas es 8 y debe ser par.';
+    HTML_TAGS.message_column.innerHTML = '';
+    HTML_TAGS.message_row.innerHTML = '';
+    if(HTML_TAGS.column_input.value < 8 || HTML_TAGS.column_input.value % 2 != 0 ){
+        HTML_TAGS.message_column.innerHTML = 'El numero minimo de columnas es 8 y debe ser par.';
     }
-    if(row_input.value < 4 || row_input.value %2 != 0){
-        message_row.innerHTML = 'El numero minimo de filas es 4 y debe ser par.';
+    if(HTML_TAGS.row_input.value < 4 || HTML_TAGS.row_input.value %2 != 0){
+        HTML_TAGS.message_row.innerHTML = 'El numero minimo de filas es 4 y debe ser par.';
     }
     
-    if(message_column.innerHTML == '' && message_row.innerHTML == ''){
+    if(HTML_TAGS.message_column.innerHTML == '' && HTML_TAGS.message_row.innerHTML == ''){
 
-        CONFIG_CHESS.num_columns = parseInt(column_input.value);
-        CONFIG_CHESS.num_rows = parseInt(row_input.value);
+        CONFIG_CHESS.num_columns = parseInt(HTML_TAGS.column_input.value);
+        CONFIG_CHESS.num_rows = parseInt(HTML_TAGS.row_input.value);
 
         // Calcular tamaño del tablero dependiendo de la resolución de pantalla, 
         // cantidad de filas y columnas
@@ -27,8 +27,8 @@ function validate_size_chess(){
         }
         CONFIG_CHESS.size_piece = CONFIG_CHESS.size_square - (CONFIG_CHESS.size_square * 0.25);
 
-        row_input.value = "0";
-        column_input.value = "0";
+        HTML_TAGS.row_input.value = "0";
+        HTML_TAGS.column_input.value = "0";
         if(hola){
             console.log('createGameChess');
             hola = false;

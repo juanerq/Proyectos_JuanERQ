@@ -1,11 +1,10 @@
-import { CHESS, CONFIG_CHESS, LETTER, listLetter, POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean, ObjectToChess } from '../chess.js';
+import { CHESS, CONFIG_CHESS, LETTER, listLetter, POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean, ObjectToChess, GAME_PROGRESS } from '../chess.js';
 import { orderPieces } from './other-functions.js';
 
-let idgame;
 //--------> CREAR ARRAY DEL TABLERO <--------//
 
 function create_chessArray(sizeRows, sizeColumns){
-    if(!idgame){
+    if(!GAME_PROGRESS.idgame){
         CHESS.length = 0;
         listLetter.length = 0;
         for(let i = 0; i < sizeRows; i++){
@@ -30,11 +29,11 @@ function putPieces(CHESS){
     let posPieces = 1;
     // CHESS = CHESS_EMPTY.slice();
 
-    if(idgame){
+    if(GAME_PROGRESS.idgame){
         const getPositionPieces = async (idgame) => {
             console.log('holllll');
             try {
-                const resPieces = await fetch('/'+idgame,{
+                const resPieces = await fetch('/'+GAME_PROGRESS.idgame,{
                     method: 'GET',
                     headers: { "Content-type": "application/json" }
                 })
@@ -48,7 +47,7 @@ function putPieces(CHESS){
                 console.log(error);
             }
         }
-        return getPositionPieces(idgame); 
+        return getPositionPieces(GAME_PROGRESS.idgame); 
     }
     
 
@@ -71,24 +70,10 @@ function putPieces(CHESS){
     }
 
     return postPositionPieces([POSITION_PIECES_BLACK, POSITION_PIECES_WHITE]);
-    // postPositionPieces(POSITION_PIECES_WHITE);
+
 }
 
 
-// function postPositionPieces(positionPieces){
-//     return fetch('/',{
-//         method: 'POST',
-//         body: JSON.stringify(positionPieces),
-//         headers: { "Content-type": "application/json" }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         // idgame = data.idgame;
-//         idgame = data.idgame;
-//         console.log(data.Status);
-//     })
-
-// }
 
 const postPositionPieces = async (positionPieces) => {
     try {
@@ -98,7 +83,8 @@ const postPositionPieces = async (positionPieces) => {
             headers: { "Content-type": "application/json" }
         })
         const data = await resPieces.json(); 
-        idgame = data.idgame;
+        GAME_PROGRESS.idgame = data.idgame;
+        console.log(GAME_PROGRESS.idgame);
         console.log(data.data);
 
     } catch(error) {

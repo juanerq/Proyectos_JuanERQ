@@ -4,18 +4,23 @@ import { create_chessArray, putPieces } from './js/create-chessArray.js'
 import { sizeChessCanvas } from './js/create-canvas.js';
 import { orderPiecesScreen } from './js/order-PiecesScreen.js';
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const HTML_TAGS = {
+    canvas: document.getElementById('canvas'),
+    ctx: canvas.getContext('2d'),
+    
+    submit_size: document.getElementById('submit_size'),
+    
+    row_input: document.getElementById('row'),
+    column_input: document.getElementById('column'),
+    message_column: document.getElementById('message_column'),
+    message_row: document.getElementById('message_row'),
+    
+    $CHESS_DIV: document.getElementById('chess'),
+    $PIECES_DIV: document.getElementsByClassName('piece'),
 
-const submit_size = document.getElementById('submit_size');
-
-const row_input = document.getElementById('row');
-const column_input = document.getElementById('column');
-const message_column = document.getElementById('message_column');
-const message_row = document.getElementById('message_row');
-
-const $CHESS_DIV = document.getElementById('chess')
-const $PIECES_DIV = document.getElementsByClassName('piece');
+    deadPiecesWhite: document.getElementById('dead_pieces_white'),
+    deadPiecesBlack: document.getElementById('dead_pieces_black')
+}
 
 const CHESS = [];
 const CHESS_VIEW = [];
@@ -39,12 +44,11 @@ const CONFIG_CHESS = {
     colorSelectSquare: '#0da2ef'
 }
 
-let turn = 'white';
-
-const deadPiecesWhite = document.getElementById('dead_pieces_white');
-const deadPiecesBlack = document.getElementById('dead_pieces_black');
+// let turn = 'white';
 
 const GAME_PROGRESS = {
+    idgame: 0,
+    turn: 'white',
     deadPiecesWhite: [],
     deadPiecesBlack: []
 }
@@ -74,15 +78,15 @@ const POSITION_PIECES_BLACK = {
 }
 
 const POSITION_PIECES_WHITE = {
-    towerleft: '9',
-    knightleft: '9',
-    bishopleft: '9',
-    queen: '9',
-    king: '9',
-    bishopright: '9',
-    knightright: '9',
-    towerright: '9',
-    pawns: [3,3,3,3,3,3,3,3]
+    towerleft: '',
+    knightleft: '',
+    bishopleft: '',
+    queen: '',
+    king: '',
+    bishopright: '',
+    knightright: '',
+    towerright: '',
+    pawns: []
 }
 
 function updatePositionPieces(objectPiece, CHOSEN_PIECE, CHOSEN_POSITION){
@@ -127,154 +131,24 @@ function ObjectToChess(piecesObject, color){
 }
 
 function cleanChess(){
-    turn = 'white';
+    // turn = 'white';
     CHOSEN_PIECE.piece = '';
+    GAME_PROGRESS.turn = 'white';
     GAME_PROGRESS.deadPiecesWhite.length = 0;
     GAME_PROGRESS.deadPiecesBlack.length = 0;
-    deadPiecesWhite.innerHTML = '';
-    deadPiecesBlack.innerHTML = '';
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    HTML_TAGS.deadPiecesWhite.innerHTML = '';
+    HTML_TAGS.deadPiecesBlack.innerHTML = '';
+    HTML_TAGS.ctx.clearRect(0, 0, HTML_TAGS.canvas.width, HTML_TAGS.canvas.height);
 }
 
 function createGameChess(){
-    cleanChess(CHOSEN_PIECE, ctx);
+    cleanChess();
     create_chessArray(CONFIG_CHESS.num_rows, CONFIG_CHESS.num_columns);
     putPieces(CHESS);
     printChess(listLetter, CHESS, GAME_PROGRESS);
     sizeChessCanvas();
     orderPiecesScreen(CHESS);
 }
-
-
-//--------> MOVER PIEZAS Y VALIDACIONES <--------//
-
-// clases de las piezas (HTML)
-
-function movePiece(posRow, posColumn, selectedTag, CHESS){
-
-    if(CHOSEN_PIECE.piece.length == 0){
-        CHOSEN_PIECE.row = posRow;
-        CHOSEN_PIECE.column = posColumn;
-        return validatePiece(CHESS, CHOSEN_PIECE, selectedTag);
-    }
-
-    if(CHOSEN_POSITION.position.length == 0){
-        CHOSEN_POSITION.row = posRow;
-        CHOSEN_POSITION.column = posColumn;
-        return validateChosen();
-    }
-
-}
-
-
-function validatePiece(CHESS, CHOSEN_PIECE, selectedTag){
-    let piezaEscontrada;
-    let pieza = CHESS[CHOSEN_PIECE.row][CHOSEN_PIECE.column];
-    if(turn == 'white'){
-        piezaEscontrada =  PIECES_WHITE.indexOf(pieza);
-    }else if(turn == 'black'){
-        piezaEscontrada =  PIECES_BLACK.indexOf(pieza);
-    }  
-
-    //No encontro la pieza?
-    if(piezaEscontrada == -1){
-        console.log(`Selecciona una pieza de color ${turn}`)
-        return errorColorRed(CHOSEN_PIECE);
-         
-    }
-    CHOSEN_PIECE.piece = pieza;
-    selectedTag.style.backgroundColor = CONFIG_CHESS.colorSelectSquare;
-    validarMovimientoPieza(pieza);
-
-    return console.log(`pieza seleccionada ${pieza}`)
-}
-
-
-function validateChosen(){
-    
-    let chosenPosition = CHESS[CHOSEN_POSITION.row][CHOSEN_POSITION.column];
-
-    // si da click a la misma pieza una vez mas se deseleccionara
-    if(CHOSEN_POSITION.row == CHOSEN_PIECE.row && CHOSEN_POSITION.column == CHOSEN_PIECE.column){
-        // Se quita el color(cualquier color) de todos los campos
-        for(const element of $PIECES_DIV){
-            element.style.backgroundColor = '';    
-        }
-        console.log(`piza deseleccionada ${chosenPosition}`);
-        // Se borra la piesa seleccionada
-        return CHOSEN_PIECE.piece = '';
-    }
-
-    let trappedPiece = (turn == 'black') ? PIECES_WHITE.indexOf(chosenPosition) :
-                       (turn == 'white') ? PIECES_BLACK.indexOf(chosenPosition) :
-                                            
-    console.log(trappedPiece);
-    if(chosenPosition.split(" ").join("").length != 0 && trappedPiece == -1){
-        console.log('Selecciona un campo vacio');
-        return errorColorRed(CHOSEN_POSITION);
-    }
-
-    let resultado = validarMovimientoPieza(CHOSEN_PIECE.piece);
-    if(!resultado){
-        console.log(`El movimiento no es valido para esta pieza ${CHOSEN_PIECE.piece}`);
-        return errorColorRed(CHOSEN_POSITION);
-
-    }
-
-    // Matar pieza
-    if(trappedPiece != -1){
-        chosenPosition = changeToFigures(chosenPosition);
-        if(turn == 'white'){
-            GAME_PROGRESS.deadPiecesBlack.push(chosenPosition);
-            deadPiecesWhite.innerHTML = GAME_PROGRESS.deadPiecesBlack.join(" ");
-        }else{
-            GAME_PROGRESS.deadPiecesWhite.push(chosenPosition);
-            deadPiecesBlack.innerHTML = GAME_PROGRESS.deadPiecesWhite.join(" ");
-        } 
-        chosenPosition = '   ';
-    }
-
-    CHOSEN_POSITION.position = chosenPosition;
-    CHESS_VIEW[CHOSEN_PIECE.row][CHOSEN_PIECE.column].style.backgroundColor = '';
-    // Función para cambiar posicion de pieza
-    return moverPieza(CHOSEN_PIECE, CHOSEN_POSITION);
-}
-
-
-
-function moverPieza(pieza, campo){
-    CHESS[campo.row][campo.column] = pieza.piece;
-    CHESS[pieza.row][pieza.column] = campo.position;
-
-    CHESS_VIEW[campo.row][campo.column].innerHTML = changeToFigures(pieza.piece); 
-    CHESS_VIEW[pieza.row][pieza.column].innerHTML = changeToFigures(campo.position); 
-
-    (turn == 'white') ? updatePositionPieces(POSITION_PIECES_WHITE, pieza, campo) :
-    updatePositionPieces(POSITION_PIECES_BLACK, pieza, campo);
-    
-    
-
-    console.log(POSITION_PIECES_WHITE);
-    
-    console.log(POSITION_PIECES_BLACK);
-    CHOSEN_PIECE.row = 0;
-    CHOSEN_POSITION.column = 0;
-    CHOSEN_PIECE.piece = '';
-    CHOSEN_POSITION.position = '';
-
-    
-
-    printChess(listLetter, CHESS, GAME_PROGRESS);
-    //Cambiar de turno
-    if(turn == 'white'){
-        turn = 'black';
-    }else if(turn == 'black'){
-        turn = 'white';
-    }
-    
-}
-
-
 
 
 
@@ -366,25 +240,11 @@ const logicaPiezas = {
 
 
 
-    const putPositionPieces = async (positionPieces) => {
-        try {
-            const resPieces = await fetch('/',{
-                method: 'PUT',
-                body: JSON.stringify(positionPieces),
-                headers: { "Content-type": "application/json" }
-            })
-            const data = await resPieces.json(); 
-            console.log(data);
-    
-        } catch(error) {
-            console.log(error);
-        }
-    }
-    putPositionPieces([POSITION_PIECES_BLACK, POSITION_PIECES_WHITE]);
+ 
 
 
-export { canvas, ctx, row_input, column_input, message_column, message_row, $CHESS_DIV, $PIECES_DIV, CONFIG_CHESS, CHESS, CHESS_VIEW, PIECES_BLACK, listLetter,LETTER, PIECES_WHITE, CHOSEN_PIECE, CHOSEN_POSITION, turn, movePiece };
-export { POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean,ObjectToChess }
-export { createGameChess, cleanChess };
+export { CONFIG_CHESS, CHESS, CHESS_VIEW, PIECES_BLACK, listLetter,LETTER, PIECES_WHITE, CHOSEN_PIECE, CHOSEN_POSITION, GAME_PROGRESS, HTML_TAGS };
+export { POSITION_PIECES_BLACK, POSITION_PIECES_WHITE, clean, ObjectToChess }
+export { createGameChess, cleanChess, updatePositionPieces };
 
 
