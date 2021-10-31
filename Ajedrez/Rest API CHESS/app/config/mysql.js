@@ -1,7 +1,7 @@
 const CREDENTIALS ={
     host     : 'localhost',
-    user     : 'root',
-    password : 'sistemas65123',
+    user     : 'selfming264',
+    password : 'Pizza.Rica264123',
     database : 'chess_game'
 }
 

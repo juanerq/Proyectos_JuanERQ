@@ -1,7 +1,8 @@
-import { CHESS, CONFIG_CHESS, CHOSEN_PIECE, CHESS_VIEW, CHOSEN_POSITION, 
-         PIECES_WHITE, PIECES_BLACK, HTML_TAGS, GAME_PROGRESS,
-         POSITION_PIECES_WHITE, POSITION_PIECES_BLACK, updatePositionPieces, listLetter} from '../chess.js';
+import { CHESS, CONFIG_CHESS, CHOSEN_PIECE, CHESS_VIEW, CHOSEN_POSITION, socket,
+PIECES_WHITE, PIECES_BLACK, HTML_TAGS, GAME_PROGRESS, validarMovimientoPieza,
+POSITION_PIECES_WHITE, POSITION_PIECES_BLACK, updatePositionPieces, listLetter} from '../chess.js';
 import { changeToFigures, printChess, errorColorRed } from './other-functions.js';
+import { putPositionPieces } from '../fetch/putPositionPieces.js';
 
 function movePiece(posRow, posColumn, selectedTag, CHESS){
 
@@ -18,7 +19,6 @@ function movePiece(posRow, posColumn, selectedTag, CHESS){
     }
 
 }
-
 
 function validatePiece(CHESS, CHOSEN_PIECE, selectedTag){
     let piezaEscontrada;
@@ -37,7 +37,7 @@ function validatePiece(CHESS, CHOSEN_PIECE, selectedTag){
     }
     CHOSEN_PIECE.piece = pieza;
     selectedTag.style.backgroundColor = CONFIG_CHESS.colorSelectSquare;
-    // validarMovimientoPieza(pieza);
+    validarMovimientoPieza(pieza);
 
     return console.log(`pieza seleccionada ${pieza}`)
 }
@@ -60,19 +60,23 @@ function validateChosen(){
 
     let trappedPiece = (GAME_PROGRESS.turn == 'black') ? PIECES_WHITE.indexOf(chosenPosition) :
                        (GAME_PROGRESS.turn == 'white') ? PIECES_BLACK.indexOf(chosenPosition) :
-                                            
-    console.log(trappedPiece);
+                        console.log(trappedPiece);
+
     if(chosenPosition.split(" ").join("").length != 0 && trappedPiece == -1){
         console.log('Selecciona un campo vacio');
         return errorColorRed(CHOSEN_POSITION);
     }
 
-    // let resultado = validarMovimientoPieza(CHOSEN_PIECE.piece);
-    // if(!resultado){
-    //     console.log(`El movimiento no es valido para esta pieza ${CHOSEN_PIECE.piece}`);
-    //     return errorColorRed(CHOSEN_POSITION);
-
-    // }
+    let resultado = validarMovimientoPieza(CHOSEN_PIECE.piece);
+    if(!resultado){
+        console.log(`El movimiento no es valido para esta pieza ${CHOSEN_PIECE.piece}`);
+        return errorColorRed(CHOSEN_POSITION);
+    }else{
+        console.log(`Buen movimiento ${CHOSEN_PIECE.piece}`);
+        for(const element of HTML_TAGS.$PIECES_DIV){
+            element.style.backgroundColor = '';    
+        }
+    }
 
     // Matar pieza
     if(trappedPiece != -1){
@@ -89,54 +93,36 @@ function validateChosen(){
 
     CHOSEN_POSITION.position = chosenPosition;
     CHESS_VIEW[CHOSEN_PIECE.row][CHOSEN_PIECE.column].style.backgroundColor = '';
+
     // Función para cambiar posicion de pieza
     return moverPieza(CHOSEN_PIECE, CHOSEN_POSITION);
 }
 
-const putPositionPieces = async (positionPieces, idgame) => {
-    try {
-        const resPieces = await fetch(`/${GAME_PROGRESS.idgame}`,{
-            method: 'PUT',
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify(positionPieces),
-            
-        })
-        const data = await resPieces.json(); 
-        console.log(data);
 
-    } catch(error) {
-        console.log(error);
-    }
-}
+function moverPieza(piece, position){
 
+    (GAME_PROGRESS.turn == 'white') ? updatePositionPieces(POSITION_PIECES_WHITE, piece, position) :
+    updatePositionPieces(POSITION_PIECES_BLACK, piece, position);
 
-function moverPieza(pieza, campo){
-    CHESS[campo.row][campo.column] = pieza.piece;
-    CHESS[pieza.row][pieza.column] = campo.position;
-
-    CHESS_VIEW[campo.row][campo.column].innerHTML = changeToFigures(pieza.piece); 
-    CHESS_VIEW[pieza.row][pieza.column].innerHTML = changeToFigures(campo.position); 
-
-    (GAME_PROGRESS.turn == 'white') ? updatePositionPieces(POSITION_PIECES_WHITE, pieza, campo) :
-    updatePositionPieces(POSITION_PIECES_BLACK, pieza, campo);
-
-    console.log(POSITION_PIECES_WHITE, POSITION_PIECES_BLACK);
     putPositionPieces([POSITION_PIECES_BLACK, POSITION_PIECES_WHITE], GAME_PROGRESS.idgame);
-    
-    console.log(POSITION_PIECES_BLACK);
-    CHOSEN_PIECE.row = 0;
-    CHOSEN_POSITION.column = 0;
-    CHOSEN_PIECE.piece = '';
-    CHOSEN_POSITION.position = '';
 
-    printChess(listLetter, CHESS, GAME_PROGRESS);
-    //Cambiar de turno
-    if(GAME_PROGRESS.turn == 'white'){
+     if(GAME_PROGRESS.turn == 'white'){
         GAME_PROGRESS.turn = 'black';
     }else if(GAME_PROGRESS.turn == 'black'){
         GAME_PROGRESS.turn = 'white';
     }
-    
+
+    const payload = {
+        posBlack: POSITION_PIECES_BLACK,
+        posWhite: POSITION_PIECES_WHITE,
+        selPiece: piece,
+        selPosition: position,
+        turn: GAME_PROGRESS.turn
+    }
+
+    socket.emit( 'enviar-pospiezas', payload, putPositionPieces([POSITION_PIECES_BLACK, POSITION_PIECES_WHITE], GAME_PROGRESS.idgame));
+
+    printChess(listLetter, CHESS, GAME_PROGRESS);
 }
 
 export { 

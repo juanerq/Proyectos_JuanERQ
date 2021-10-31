@@ -1,7 +1,7 @@
 import { HTML_TAGS, CONFIG_CHESS } from '../chess.js'
 
 function sizeChessCanvas(){
-    
+
     let width = CONFIG_CHESS.size_square * CONFIG_CHESS.num_columns;
     let height = CONFIG_CHESS.size_square * CONFIG_CHESS.num_rows;
     

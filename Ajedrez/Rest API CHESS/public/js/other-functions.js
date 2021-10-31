@@ -1,4 +1,4 @@
-import { CHESS_VIEW, HTML_TAGS } from '../chess.js';
+import { CHESS_VIEW, CHESS, HTML_TAGS } from '../chess.js';
 
 
 //--------> CAMBIAR LETRAS A FICHAS <--------//
@@ -55,5 +55,21 @@ function errorColorRed(posError) {
     }, 300);
 }
 
-export { changeToFigures, printChess, orderPieces, errorColorRed };
+//--------> USAR OBJETETO DE POSITION_PIECES PARA CREAR TABLERO ( ARRAY ) <--------//
+
+function ObjectToChess(piecesObject, color){
+
+    let selectPieces = 1;        
+    for(const element in piecesObject){
+        if(element != 'idpwhite' && element != 'idpawnwhite' && element != 'idpblack' && element != 'idpawnblack' && element != 'rows' && element != 'columns'){
+            let pos = piecesObject[element]
+            pos = pos.split(',');
+            CHESS[pos[0]][pos[1]] = orderPieces(selectPieces, color);
+            CHESS_VIEW[pos[0]][pos[1]].innerHTML = changeToFigures(orderPieces(selectPieces, color));
+            if(selectPieces != 9) selectPieces++; 
+        }
+    }
+}
+
+export { changeToFigures, printChess, orderPieces, errorColorRed, ObjectToChess };
 

@@ -1,4 +1,4 @@
-let db = require('../db/mysql');
+let db = require('../model/mysql');
 
 let addPositionPieces = async (req, res) => {
     const connection = db.connection()
@@ -8,10 +8,10 @@ let addPositionPieces = async (req, res) => {
 
         db.addPositionPieces(connection, POSITION_PIECES[0], 'black').then(resolve =>{
 
-            connection.query('INSERT INTO game SET ?', {pwhite: POSITION_PIECES[1]['idpwhite'], pblack: POSITION_PIECES[0]['idpblack']}, (err, results) => {
+            connection.query('INSERT INTO game SET ?', {pwhite: POSITION_PIECES[1]['idpwhite'], pblack: POSITION_PIECES[0]['idpblack'], rows: POSITION_PIECES[2].num_rows, columns: POSITION_PIECES[2].num_columns}, (err, results) => {
                 if(err) return reject(err);
-                res.json({Status: 'Saved Pieces Position', idgame: results.insertId});
-                // idgame = `${results.insertId}`;
+                res.json({Status: 'Saved Pieces Position', idgame: results.insertId, results: results});
+
                 connection.end()
             }) 
 

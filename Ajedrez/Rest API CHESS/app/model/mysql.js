@@ -35,9 +35,9 @@ function addPositionPieces(connection, objectPieces, color = 'white'){
 // Obtener posición de las piezas de la base de datos
 function getPositionPieces(connection, idgame, color = 'white'){
     return new Promise((resolve, reject) =>{
-        connection.query(`SELECT pieces${color}.*, pawn${color}.* FROM game g, pieces${color}, pawn${color} WHERE g.p${color}=pieces${color}.idp${color} and pieces${color}.idpawn${color}=pawn${color}.idpawn${color} and g.idgame = ?`, idgame, (err, results) => {
-            if(err) return reject(err);
-            
+        connection.query(`SELECT pieces${color}.*, pawn${color}.*, g.rows, g.columns FROM game g, pieces${color}, pawn${color} WHERE g.p${color}=pieces${color}.idp${color} and pieces${color}.idpawn${color}=pawn${color}.idpawn${color} and g.idgame = ?`, idgame, (err, results) => {
+
+            if(err) return reject(err);   
             return resolve(results)
         })    
 
@@ -51,7 +51,6 @@ function updatePositionPieces(connection, objectPieces, idgame, color = 'white')
         connection.query(`SELECT p.idp${color} as idpieces, p.idpawn${color} as idpawns FROM game g, pieces${color} p WHERE g.p${color} = p.idp${color} and g.idgame = ?`, idgame, (err, results) => {
             if(err) return reject(err);
             let id = results;
-            console.log(id);
 
             connection.query(`UPDATE pawn${color} SET ? WHERE idpawn${color} = ${id[0].idpawns}`, arrayToObject(objectPieces.pawns), (err, results) => {
                 if(err) return reject(err);
@@ -60,7 +59,7 @@ function updatePositionPieces(connection, objectPieces, idgame, color = 'white')
                 connection.query(`UPDATE pieces${color} SET ?  WHERE idp${color}=${id[0].idpieces}`, objectPieces, (err, results) => {
                     if(err) return reject(err);
     
-                    return resolve(objectPieces)
+                    return resolve(objectPieces);
                 })    
                 
             })
@@ -68,11 +67,6 @@ function updatePositionPieces(connection, objectPieces, idgame, color = 'white')
         })    
     })
 }
-
-
-
-
-
 
 
 module.exports = {
